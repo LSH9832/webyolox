@@ -1,0 +1,105 @@
+body {
+    background-color: #aaa;
+}
+
+.elegant-aero {
+    margin-left:auto;
+    margin-right:auto;
+    width:1800px;
+    max-width: 90%;
+    min-width: 70%;
+    background: #aaa;
+    padding: 20px 20px 20px 20px;
+    font: 18px Arial, Helvetica, sans-serif;
+    color: #000;
+}
+ 
+.elegant-aero h1 {
+    font: 24px "Trebuchet MS", Arial, Helvetica, sans-serif;
+    padding: 10px 10px 10px 20px;
+    display: block;
+    background: #999;
+    border-bottom: 1px solid #444;
+    margin: -20px -20px 15px;
+}
+ 
+.elegant-aero h1>span {
+    display: block;
+    font-size: 11px;
+}
+ 
+
+.elegant-aero label>span {
+    float: left;
+    margin-top: 10px;
+    color: #555;
+}
+ 
+.elegant-aero label {
+    display: block;
+    margin: 0px 0px 5px;
+}
+ 
+.elegant-aero label>span {
+    float: left;
+    width: 20%;
+    text-align: right;
+    padding-right: 15px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+ 
+.elegant-aero input[type="text"], .elegant-aero input[type="email"], .elegant-aero input[type="number"], .elegant-aero textarea, .elegant-aero select {
+    color: #444;
+    width: 30%;
+    padding: 0px 0px 0px 5px;
+    border: 1px solid #444;
+    background: #FBFBFB;
+    outline: 0;
+    -webkit-box-shadow:inset 0px 1px 6px #ECF3F5;
+    box-shadow: inset 0px 1px 6px #ECF3F5;
+    font: 200 20px Arial, Helvetica, sans-serif;
+    height: 38px;
+    line-height:15px;
+    margin: 2px 6px 16px 0px;
+}
+ 
+.elegant-aero textarea{
+    height:150px;
+    padding: 5px 0px 0px 5px;
+    width: 68.5%;
+}
+ 
+.elegant-aero select, .elegant-aero input[type="number"] {
+    -moz-appearance: textfield;
+    text-indent: 0.01px;
+    text-overflow: '';
+    width: 95%;
+}
+.elegant-aero .button{
+    font-size: 20px;
+    padding: 10px 30px 10px 30px;
+    background: #666;
+    border: none;
+    color: #FFF;
+    box-shadow: 1px 1px 1px #444;
+    -webkit-box-shadow: 1px 1px 1px #444;
+    -moz-box-shadow: 1px 1px 1px #444;
+    text-shadow: 1px 1px 1px #555;
+}
+ 
+.elegant-aero .button:hover{
+    background: #333;
+}
+
+.elegant-aero .select {
+    width: 35%;
+}
+
+.elegant-aero .number {
+    width: 15%;
+}
+
+.elegant-aero .selectline, .elegant-aero .numberline {
+    display: flex;
+}
