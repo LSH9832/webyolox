@@ -6,7 +6,7 @@
 2021年旷视研究院推出的YOLOX算法性能相当可以，给的源码条理也非常清晰，嵌入式部署也非常方便，但无论如何，训练的时候部署数据集还有相应环境等还是很费时间的，所以呢，这个网页端管理界面能够帮你节省很多时间。
 ## 快速开始
 **不想看介绍想直接用**的同学（我就是这种人，建议至少还是看一下注意）copy下面代码到服务器上运行就行(前提是安装完了**cuda,cudnn,torch,torchvision**哈)
-```bash
+```shell
 sudo apt install screen
 git clone https://github.com/LSH9832/webyolox.git
 cd webyolox
@@ -14,7 +14,7 @@ pip3 install -r requirements.txt
 python3 main.py -p 8080 --debug
 ```
 然后打开浏览器，输入
-```bash
+```shell
 服务器的局域网IP:8080
 ```
 即可，初始用户名和密码都是admin，登录后可修改。
@@ -37,43 +37,43 @@ python3 main.py -p 8080 --debug
 ## 1. 部署本项目
 ### 1.1 安装相应依赖
 首先，你要保证在上述**注意**中提到的依赖都装好了,检查一下
-```bash
+```shell
 nvidia-smi
 nvcc -V
 ```
 然后
-```bash
+```shell
 sudo apt install screen
 ```
 这个应该服务器都会装这个，好用得很，训练的程序也是在screen里运行的。
 ### 1.2 下载并配置本项目
-```bash
+```shell
 git clone https://github.com/LSH9832/webyolox.git
 cd webyolox
 pip3 install -r requirements.txt
 ```
 ### 1.3 设置开机自启动（可选）
 用我的另一个上传的项目addstart, 首先打开一个bash脚本
-```bash
+```shell
 sudo nano /usr/bin/webyolox
 ```
 然后写下
-```bash
+```shell
 cd 本项目的主目录
 python3 main.py -p 8080 --debug&
 ```
 自己可以去改端口，不写debug，在发生错误时就不会在网页端显示报错详情。
 保存并关闭，然后
-```bash
+```shell
 sudo chmod +x /usr/bin/webyolox
 ```
 然后root运行addstart项目下的addstart.py文件
-```bash
+```shell
 sudo su
 python3 addstart.py
 ```
 按照提示输入即可，完成后下次开机就自启动了，如果不方便重启，就输入
-```bash
+```shell
 sudo service webyolox start
 ```
 即可，本项目就运行成功了。
