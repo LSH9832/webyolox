@@ -184,7 +184,7 @@ def jump2Html(url, text: list or None = None, time_delay=0.):
     html_string = """<!DOCTYPE html>
 <html>
     %s
-    <form id='form1' name='form1' action='%s'></form>
+    <form id='form1' name='form1' method="post" action='%s'></form>
     <script language='javascript'>
         setTimeout('document.form1.submit()', '%d');
     </script>
