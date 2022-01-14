@@ -7,7 +7,9 @@ setting_dir = hyp_file[:-len('hyp.yaml')]
 os.makedirs(setting_dir + 'output', exist_ok=True)
 os.popen('echo %s > %s' % (str(os.getpid()), setting_dir + 'output/pid'))
 
-running_path = os.path.abspath('../../yolox')
+this_file_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+running_path = os.path.join(this_file_dir, 'yolox')
+
 os.chdir(running_path)
 sys.path.append(running_path)
 
