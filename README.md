@@ -86,6 +86,7 @@ sudo service webyolox start
 web运行环境安装
 - pyyaml
 - flask
+
 即可，剩下的都要安装到训练环境中。
 为了方便，最好就是web运行环境与训练环境都用同一个环境。
 ### 2.2 训练配置
