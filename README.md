@@ -5,7 +5,8 @@
 <div align="center"><img src="src/02.png" width="100%"></div>
 <div align="center"><img src="src/03.png" width="100%"></div>
 <div align="center"><img src="src/04.png" width="100%"></div>
-<br>
+
+# webyolox
 2021年旷视研究院推出的YOLOX算法性能相当可以，给的源码条理也非常清晰，嵌入式部署也非常方便，但无论如何，训练的时候部署数据集还有相应环境等还是很费时间的，所以呢，这个网页端管理界面能够帮你节省很多时间。
 ## 快速开始
 **不想看介绍想直接用**的同学（我就是这种人，建议至少还是看一下注意）copy下面代码到服务器上运行就行(前提是安装完了**cuda,cudnn,torch,torchvision**哈)
