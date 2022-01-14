@@ -339,8 +339,7 @@ def train_details():
                     'SETTING_NAME',
                     msg['name']
                 )
-            return create_html.jump2Html('/settings_list', '从未训练过，无详情', 1)
-        return create_html.jump2Html('/settings_list', '该训练配置不存在！', 1)
+        return create_html.jump2Html('/settings_list', '从未训练过，无详情', 1)
     return create_html.jump2Html('/settings_list', '不要乱改request，小老弟', 1)
 
 
