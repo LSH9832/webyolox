@@ -69,7 +69,7 @@ def launch(
             dist_url = f"tcp://127.0.0.1:{port}"
 
         start_method = "spawn"
-        cache = vars(args[1]).get("cache", False)
+        cache = False
 
         # To use numpy memmap for caching image into RAM, we have to use fork method
         if cache:
