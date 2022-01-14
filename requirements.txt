@@ -10,7 +10,8 @@ thop
 ninja
 tabulate
 tensorboard
-yaml
+pyyaml
+pycocotools
 flask
 
 # verified versions
