@@ -1,0 +1,69 @@
+html{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-style: sans-serif;
+}
+body{
+    width: 100%;
+    height: 100%;
+    font-family: 'Open Sans',sans-serif;
+    margin: 0;
+    background-color: #ccc;
+}
+#create, #login{
+    position: absolute;
+    top: 20%;
+    left:10%;
+    /*margin: -150px 0 0 -150px;*/
+    width: 80%;
+    height: auto;
+}
+#create h1{
+    color: #333;
+    text-shadow:0 0 10px;
+    letter-spacing: 1px;
+    text-align: center;
+}
+h1{
+    color: #333;
+    text-shadow:0 0 10px;
+    letter-spacing: 1px;
+    text-align: center;
+}
+input{
+    position: center;
+    width:80%;
+    height:24px;
+    max-width: 278px;
+    max-height: 24px;
+    margin-bottom: 10px;
+    outline: none;
+    padding: 10px;
+    font-size: 17px;
+    color: #222;
+    border-top: 1px solid #444;
+    border-left: 1px solid #444;
+    border-right: 1px solid #444;
+    border-bottom: 1px solid #444;
+    border-radius: 4px;
+    background-color: #eee;
+}
+
+.but{
+    width: 300px;
+    min-height: 20px;
+    display: block;
+    background-color: #555;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 9px 14px;
+    font-size: 16px;
+    line-height: normal;
+    border-radius: 5px;
+    margin: 0;
+}
+
+.but:hover {
+    background-color: #333;
+}
