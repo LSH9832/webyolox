@@ -1,3 +1,8 @@
+<div align="center"><img src="src/00.png" width="100%"></div>
+<div align="center"><img src="src/01.png" width="100%"></div>
+<div align="center"><img src="src/02.png" width="100%"></div>
+<div align="center"><img src="src/03.png" width="100%"></div>
+<div align="center"><img src="src/04.png" width="100%"></div>
 # WEB-YOLOX: 在网页端管理你的YOLOX训练过程！
 2021年旷视研究院推出的YOLOX算法性能相当可以，给的源码条理也非常清晰，嵌入式部署也非常方便，但无论如何，训练的时候部署数据集还有相应环境等还是很费时间的，所以呢，这个网页端管理界面能够帮你节省很多时间。
 ## 快速开始
