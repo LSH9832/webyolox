@@ -97,6 +97,7 @@ web运行环境安装
 - predict_trt.py: 单进程，经过tensorRT转换后的权重文件（需要安装相关环境，这里不过多介绍，使用测试代码中的trt.py转化，转化方式见How To Generate and Use trt file.txt）
 - multi_pro_predict.py: 多进程，原始文件
 - multi_pro_predict_trt.py: 多进程，tensorRT文件
+
 打开这些文件中的任意一个，把模型大小改成自己模型文件对应的大小，模型文件名改成自己训练的权重文件的名字，然后source改成自己的摄像头或者视频名称即可。
 ```python3
 weight_type = 's'     # 找到这一行，改成自己的权重文件对应的大小（s,m,l,x,tiny）
