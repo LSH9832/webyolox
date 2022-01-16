@@ -46,7 +46,7 @@ def save_checkpoint(state, is_best, save_dir, model_name="", epoch: int or None 
         if epoch is not None and isinstance(epoch, int):
             last_model_name = '%s_%04d.pth' % (model_name, epoch)
         else:
-            last_model_name = 'last.pth' % model_name
+            last_model_name = 'last.pth'
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         filename = os.path.join(save_dir, last_model_name)
