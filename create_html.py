@@ -80,13 +80,16 @@ def extract_train_msg(setting_dir):
     others = ["now_iter", "lr", "total_loss", "iou_loss", "l1_loss", "conf_loss", "cls_loss"]
     msg_send = {}
     now_msg = {}
+    now_iter = 0
     for name in others:
         msg_send[name] = []
     for line in total:
         if len(line):
             now_msg = yaml.load(line, yaml.FullLoader)
-            for name in others:
-                msg_send[name].append(now_msg[name])
+            if now_iter < now_msg["now_iter"]:
+                now_iter = now_msg["now_iter"]
+                for name in others:
+                    msg_send[name].append(now_msg[name])
     for name in once:
         msg_send[name] = now_msg[name]
 
