@@ -138,9 +138,13 @@ def extract_eval_msg(setting_dir):
         for line in total:
             if len(line):
                 now_msg = yaml.load(line, yaml.FullLoader)
-                eval_msg["ap50_95"].append(now_msg["ap50_95"])
-                eval_msg["ap50"].append(now_msg["ap50"])
-                eval_msg["now_epoch"].append(now_msg["now_epoch"])
+                if eval_msg["now_epoch"][-1] == now_msg["now_epoch"]:
+                    eval_msg["ap50_95"][-1] = max(eval_msg["ap50_95"][-1], now_msg["ap50_95"])
+                    eval_msg["ap50"][-1] = max(eval_msg["ap50"][-1], now_msg["ap50"])
+                else:
+                    eval_msg["ap50_95"].append(now_msg["ap50_95"])
+                    eval_msg["ap50"].append(now_msg["ap50"])
+                    eval_msg["now_epoch"].append(now_msg["now_epoch"])
     return eval_msg
 
 
