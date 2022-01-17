@@ -368,7 +368,7 @@ class Trainer:
             "ap50": float(ap50),
             "now_epoch": self.epoch + 1,
         }
-        os.popen('echo %s >> %s' % (json.dumps(eval_msg), os.path.join(self.file_name, 'output', 'eval')))
+        os.popen('echo %s >> %s' % (json.dumps(eval_msg), os.path.join(self.file_name, 'eval')))
         self.model.train()
         if self.rank == 0:
             self.tblogger.add_scalar("val/COCOAP50", ap50, self.epoch + 1)
