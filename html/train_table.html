@@ -245,7 +245,12 @@ setInterval(
                 const now_epoch = json.now_epoch;
 
 
-                while (my_data.now_iter.length > max_show) {my_data.now_iter.shift();}
+                i=0;
+                while (my_data.now_iter.length > max_show + 1) {my_data.now_iter.shift();}
+                while (i < all_labels.length) {
+                    while (eval("my_data." + all_labels[i]).length > max_show + 1) {eval("my_data." + all_labels[i]).shift();}
+                    i++;
+                }
 
 
                 //如果还没有到下一个epoch则更新当前epoch
@@ -259,7 +264,7 @@ setInterval(
                     if (json.now_iter > my_data.now_iter[my_data.now_iter.length-1]) {
                         //console.log(my_data);
                         //console.log(my_data.now_iter.length);
-                        //while (my_data.now_iter.length > max_show) {my_data.now_iter.shift();}
+                        while (my_data.now_iter.length > max_show) {my_data.now_iter.shift();}
                         //console.log(my_data.now_iter.length);
 
                         my_data.now_iter.push(json.now_iter);
