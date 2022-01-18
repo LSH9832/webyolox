@@ -1,12 +1,11 @@
 import os
-
-import requests
-from flask import *
-# from datetime import datetime
-# import json
-import yaml
 import argparse
 from glob import glob
+
+from datetime import timedelta
+from flask import *
+import yaml
+
 from screen import Screen
 import create_html
 
@@ -17,7 +16,7 @@ print(os.getcwd())
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
-
+app.permanent_session_lifetime = timedelta(days=7)      # 7天内免登录
 
 #############################################################################
 def make_parser():
