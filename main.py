@@ -1,8 +1,8 @@
 import os
 import argparse
+from datetime import timedelta
 from glob import glob
 
-from datetime import timedelta
 from flask import *
 import yaml
 
