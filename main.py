@@ -24,7 +24,7 @@ def make_parser():
     parser = argparse.ArgumentParser("WEB-YOLOX parser")
     parser.add_argument("-p", "--port", type=int, default=8080, help="running port")
     parser.add_argument("--debug", default=False, action="store_true", help="debug mode")
-    parser.add_argument("--log-off", default=False, action="store_true", help="debug mode")
+    parser.add_argument("--log-off", default=False, action="store_true", help="turn off logger")
     return parser
 
 
