@@ -190,12 +190,14 @@ def jump2Html(url, text: list or None = None, time_delay=0.):
         msg += "<p>%s</p>" % line
     html_string = """<!DOCTYPE html>
 <html>
-    %s
-    <form id='form1' name='form1' method="post" action='%s'></form>
-    <script language='javascript'>
-        setTimeout('document.form1.submit()', '%d');
-    </script>
-</html>""" % (msg, url, time_delay * 1000)
+    <head>
+        <title>WEB-YOLOX 跳转提示</title>
+        <meta http-equiv="refresh" content="%s;url=%s">
+    </head>
+    <body>
+        %s
+    </body>
+</html>""" % (time_delay, url, msg)
     return html_string
 
 
