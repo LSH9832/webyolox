@@ -557,29 +557,29 @@ def getSettingsListHtml():
             )
         )
 
-    string_show = '<html>\n' \
-                  '    <head>\n' \
-                  '        <title>WEB-YOLOX 训练配置列表</title>\n' \
-                  '        <link rel="stylesheet" type="text/css" href="file/table.css?new=true">\n' \
-                  '    </head>\n' \
-                  '    <body>\n' \
-                  '        <div style="display: flex;">\n' \
-                  '            <div style="width: 50%%"><a href="/set_interpreter">设置解释器</a>&nbsp;&nbsp;当前解释器: %s</div>\n' \
-                  '            <div style="width: 50%%">\n' \
-                  '                <div style="float: right;padding-right: 10px;">\n' \
-                  '                    <a href="/file/yolox_base.zip">下载测试代码</a>&nbsp;&nbsp;\n' \
-                  '                    <a href="/change_user_pwd">修改用户名和密码</a>&nbsp;&nbsp;\n' \
-                  '                    <a href="/logout">注销</a>\n' \
-                  '                </div>\n' \
-                  '            </div>\n' \
-                  '        </div>\n' \
-                  '        <center>\n' \
-                  '            <h2>训练配置列表</h2>\n' \
-                  '            <a href="/create_new_setting">创建新的训练配置</a>\n' \
-                  '            <table>%s</table>\n' \
-                  '        </center>\n' \
-                  '    </body>\n' \
-                  '</html>\n' % (now_interpreter, string_show)
+    string_show = """<html> 
+    <head> 
+        <title>WEB-YOLOX 训练配置列表</title> 
+        <link rel="stylesheet" type="text/css" href="file/table.css?new=true"> 
+    </head> 
+    <body> 
+        <div style="display: flex;"> 
+            <div style="width: 50%%"><a href="/set_interpreter">设置解释器</a>&nbsp;&nbsp;当前解释器: %s</div> 
+            <div style="width: 50%%"> 
+                <div style="float: right;padding-right: 10px;"> 
+                    <a href="/file/yolox_base.zip">下载测试代码</a>&nbsp;&nbsp; 
+                    <a href="/change_user_pwd">修改用户名和密码</a>&nbsp;&nbsp; 
+                    <a href="/logout">注销</a> 
+                </div> 
+            </div> 
+        </div> 
+        <center> 
+            <h2>训练配置列表</h2> 
+            <a href="/create_new_setting">创建新的训练配置</a> 
+            <table>%s</table> 
+        </center> 
+    </body> 
+</html>""" % (now_interpreter, string_show)
     return string_show
 
 
@@ -608,44 +608,44 @@ def getSetInterpreterHtml():
 
 
 def confirmDeleteSettingHtml(name: str):
-    string_show = '<!DOCTYPE html>\n' \
-                  '<html lang="en">\n' \
-                  '<html>\n' \
-                  '    <head>\n' \
-                  '        <meta charset="UTF-8">\n' \
-                  '        <title>WEB-YOLOX 确认删除配置</title>\n' \
-                  '        <link rel="stylesheet" type="text/css" href="file/login.css?new=true">\n' \
-                  '    </head>\n' \
-                  '    <body>\n' \
-                  '        <center>\n' \
-                  '            <div id="create">\n' \
-                  '                <h1>您正要删除配置: %s</h1>\n' \
-                  '                <form id="confirm" name="confirm" action="/confirm_delete" method="post">\n' \
-                  '                     <div id="msg" style="color:red"></div>\n' \
-                  '                     <p><input type="text" name="inputname" placeholder="请输入该配置名称以确认删除" required/></p>\n' \
-                  '                     <input type="hidden" name="name" value="%s" required/>\n' \
-                  '                     <button class="but" type="button" onclick="confirm_and_submit();">确认删除</button>\n' \
-                  '                </form>\n' \
-                  '            </div>\n' \
-                  '        </center>\n' \
-                  '        <script type="text/javascript">\n' \
-                  '            confirm_and_submit = function () {\n' \
-                  '                var confirm = document.getElementById("confirm");\n' \
-                  '                var real_name = confirm.name.value;\n' \
-                  '                var input_name = confirm.inputname.value;\n' \
-                  '                var msg = document.getElementById("msg");\n' \
-                  '                if (real_name === input_name) {\n' \
-                  '                    confirm.submit();\n' \
-                  '                }\n' \
-                  '                else {\n' \
-                  '                    msg.innerHTML = "<p>输入错误！</p>";\n' \
-                  '                    console.log("wrong input: " + msg.value);\n' \
-                  '                }\n' \
-                  '            }\n' \
-                  '        </script>\n' \
-                  '        <!-script src="/file/confirm_delete.js?new=true" />\n' \
-                  '    </body>\n' \
-                  '</html>\n' % (name, name)
+    string_show = """<!DOCTYPE html> 
+<html lang="en"> 
+<html> 
+    <head> 
+        <meta charset="UTF-8"> 
+        <title>WEB-YOLOX 确认删除配置</title> 
+        <link rel="stylesheet" type="text/css" href="file/login.css?new=true"> 
+    </head> 
+    <body> 
+        <center> 
+            <div id="create"> 
+                <h1>您正要删除配置: %s</h1> 
+                <form id="confirm" name="confirm" action="/confirm_delete" method="post"> 
+                     <div id="msg" style="color:red"></div> 
+                     <p><input type="text" name="inputname" placeholder="请输入该配置名称以确认删除" required/></p> 
+                     <input type="hidden" name="name" value="%s" required/> 
+                     <button class="but" type="button" onclick="confirm_and_submit();">确认删除</button> 
+                </form> 
+            </div> 
+        </center> 
+        <script type="text/javascript"> 
+            confirm_and_submit = function () { 
+                var confirm = document.getElementById("confirm"); 
+                var real_name = confirm.name.value; 
+                var input_name = confirm.inputname.value; 
+                var msg = document.getElementById("msg"); 
+                if (real_name === input_name) { 
+                    confirm.submit(); 
+                } 
+                else { 
+                    msg.innerHTML = "<p>输入错误！</p>"; 
+                    console.log("wrong input: " + msg.value); 
+                } 
+            } 
+        </script> 
+        <!-script src="/file/confirm_delete.js?new=true" /> 
+    </body> 
+</html>""" % (name, name)
     return string_show
 
 
