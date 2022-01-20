@@ -94,16 +94,27 @@ web运行环境安装
 ### 2.3 训练开始时
 刚开始点了“开始训练”后，训练程序会过几秒后甚至十几秒后才会生成日志文件，所以请等一会儿再点击“查看日志”，在日志中显示开始第一轮训练后才会生成数据，此时再打开“详情”才会有相应数据显示。
 ### 2.4 使用自己训练的权重文件
-如果已经训练了至少一个epoch，则会有权重文件生成，点进列表的“详情”中即可下载到自己的电脑中，如果要使用的话，在登录进去的列表页面，右上角有一个“下载测试代码”，里面有4个demo可以运行，分别是
-- predict.py: 单进程，原始权重文件
-- predict_trt.py: 单进程，经过tensorRT转换后的权重文件（需要安装相关环境，这里不过多介绍，使用测试代码中的trt.py转化，转化方式见How To Generate and Use trt file.txt）
-- multi_pro_predict.py: 多进程，原始文件
-- multi_pro_predict_trt.py: 多进程，tensorRT文件
-
-打开这些文件中的任意一个，把模型大小改成自己模型文件对应的大小，模型文件名改成自己训练的权重文件的名字，然后source改成自己的摄像头或者视频名称即可。
-```python3
-weight_type = 's'     # 找到这一行，改成自己的权重文件对应的大小（s,m,l,x,tiny）
-detector.setModelPath('weights/yolox_s.pth') # 找到这一行，改权重文件
-source = 0   # 找到这一行，改成自己的摄像头地址或视频地址
+如果已经训练了至少一个epoch，则会有权重文件生成，点进列表的“详情”中即可下载到自己的电脑中，如果要使用的话，在登录进去的列表页面，右上角有一个“下载测试代码”，可以运行detect.py文件查看效果。在运行前打开配置文件detect_settings.yaml进行修改，把模型大小改成自己模型文件对应的大小，模型文件名改成自己训练的权重文件的名字，然后source改成自己的摄像头或者视频名称即可。
+```yaml
+confidence_thres: 0.4
+nms_thres: 0.5
+device: 'gpu'  # cpu
+auto_choose_device: true
+input_size: 640
+fp16: false
+weight_size: 's'  # m,l,x,tiny
+model_path: './best.pth'      # 改成你自己权重文件的名字
+is_trt_file: false          # 是否使用的是用trt.py转换为tensorrt加速后的文件，转换方法见文件夹内txt文件
+classes_file: 'coco_classes.txt'
+source: 'test.mkv'        #  0      'assets/dog.jpg'   '/path/to/your/image_dir' 改成你自己的source
+source_type: 'vid'        # 'cam'   'image'            'image_dir'               改成对应的类别
+save_image: false
+show_image: true
+start_with_pause: false   # 如果是一些没有时间关联的图片的话，改为true一帧一帧查看效果会好一点, 运行时按空格键切换模式
 ```
-然后就可以运行看看训练得怎么样了！
+然后就可以运行
+```python3
+python detect.py --multi   # 多进程运行，播放速度块
+python detect.py           # 单进程运行
+```
+看看训练得怎么样了！
