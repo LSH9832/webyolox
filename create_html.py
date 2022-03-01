@@ -204,7 +204,13 @@ def jump2Html(url, text: list or None = None, time_delay=0.):
 def getBasicSettingsHtml(data_root, settings_dir):
     import os
     import yaml
-    all_model_size = ['s', 'm', 'l', 'x', 'tiny']
+    all_model_size = {
+        's': 'small',
+        'm': 'medium',
+        'l': 'large',
+        'x': 'extra large',
+        'tiny': 'tiny'
+    }
     gpu_num, gpu_msg = get_gpu_number()
     data_root = os.path.abspath(data_root).replace('\\', '/')
     if not data_root.endswith('/'):
@@ -222,7 +228,7 @@ def getBasicSettingsHtml(data_root, settings_dir):
     val_dir_index = dir_list.index(msg['val_dataset_path'].split('/')[-1]) if settings_exist else 0
     train_json_index = anno_list.index(msg['train_annotation_file'].split('/')[-1]) if settings_exist else 0
     val_json_index = anno_list.index(msg['val_annotation_file'].split('/')[-1]) if settings_exist else 0
-    model_size_index = all_model_size.index(msg['model_size']) if settings_exist else 0
+    model_size = msg['model_size'] if settings_exist else 's'
     use_gpu_num = msg['gpu_num'] if settings_exist else 0
     epochs = msg['epochs'] if settings_exist else 100
     batch_size = msg['batch_size'] if settings_exist else 12
@@ -230,6 +236,14 @@ def getBasicSettingsHtml(data_root, settings_dir):
     pretrained_file = '' if not settings_exist else '' if msg['pretrained_weight_file'] == 'no file selected' else msg['pretrained_weight_file']
     fp16 = msg['fp16'] if settings_exist else False
     save_each_epoch = msg['save_each_epoch'] if settings_exist else False
+
+    def gpu_choose2str(my_list):
+        this_string = ""
+        for item in my_list:
+            this_string += "%s;" % str(item + 1)
+        return this_string[:-1]
+
+    gpu_choose = gpu_choose2str(msg["gpu_choose"]) if "gpu_choose" in msg else ""
 
     gpu_msg_string = "可用GPU:<br />"
     train_dir_string = ""
@@ -273,11 +287,12 @@ def getBasicSettingsHtml(data_root, settings_dir):
         )
 
     for this_model_size in all_model_size:
-        model_size_string += '<option value="%s"%s>small(%s)</option>' % (
+        model_size_string += '<option value="%s"%s>%s(%s)</option>' % (
             this_model_size,
             ' selected'
-            if this_model_size == all_model_size[model_size_index]
+            if this_model_size == model_size
             else '',
+            all_model_size[this_model_size],
             this_model_size
         )
 
@@ -303,11 +318,13 @@ def getBasicSettingsHtml(data_root, settings_dir):
         val_dir_string,
         train_anno_string,
         val_anno_string,
+        model_size_string,
         gpu_string,
         epochs,
         batch_size,
         start_epoch,
         pretrained_file,
+        gpu_choose,
         ' checked' if fp16 else '',
         ' checked' if save_each_epoch else ''
     )
@@ -358,11 +375,7 @@ def getBasicSettingsHtml(data_root, settings_dir):
             <div class="select">
                 模型大小:<br />
                 <select name = "model_size" required>
-                    <option value="s">small(s)</option>
-                    <option value="m">medium(m)</option>
-                    <option value="l">large(l)</option>
-                    <option value="x">extra large(x)</option>
-                    <option value="tiny">tiny</option>
+                    %s
                 </select><br />
             </div>
             <div class="select">
@@ -385,19 +398,23 @@ def getBasicSettingsHtml(data_root, settings_dir):
             </div>
         </div>
         <div>
-            预训练模型文件(不使用则不填，模型大小一定要对应上):<br />
-            <input name="pretrained_weight_file" type="text" value="%s"><br />
+            预训练模型文件:<br />
+            <input name="pretrained_weight_file" placeholder="不使用则不填，模型大小一定要对应上" type="text" value="%s"><br />
+        </div>
+        <div>
+            使用的GPU编号:<br />
+            <input type="text" placeholder="参考可用GPU编号，用分号隔开，不填则按编号顺序使用GPU（示例：1;3）" name="gpu_choose" value="%s"/><br />
         </div>
             <input type="checkbox"%s name="fp16">使用混合精度训练(fp16)<br />
             <input type="checkbox"%s name="save_each_epoch">每次训练均保存模型<br />
-                
-            <br /><textarea name="tips"></textarea><br />
+            
+            <br /><textarea name="classes" placeholder="即将推出"></textarea><br />
         
             <br />
 		    <input type="reset" class="button" value="重置"> &nbsp;
 		    <input type="submit" class="button" value="提交"><br />
 		    
-		    <input type="hidden" name="token" value="cbff36039c3d0212b3e34c23dcde1456">
+		    <input type="hidden" name="token" value="null">
 
 		
 		</form>

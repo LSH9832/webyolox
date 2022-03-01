@@ -207,6 +207,15 @@ def save_basic():
         "val_annotation_file": '%sannotations/%s' % (msg['data_dir'], msg['val_anno']),
         "val_dataset_path": '%s%s' % (msg['data_dir'], msg['val_dir']),
     }
+    try:
+        gpu_choose = msg["gpu_choose"]
+        gpu_choose.replace("；", ";").replace(" ", "").replace("\r", "")
+        if len(gpu_choose):
+            gpu_choose = [int(i)-1 for i in gpu_choose.split(';')]
+            msg_to_save["gpu_choose"] = gpu_choose
+    except:
+        print("gpu编号选择填写有误！")
+        pass
     # ret = ""
     # for name in msg_to_save:
     #     ret += "%s: %s<br />" % (name, msg_to_save[name])

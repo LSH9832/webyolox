@@ -81,7 +81,15 @@ if __name__ == "__main__":
 
     exp.load_yaml(hyp_file)       # 载入超参数
     # exp.merge(None)
-
+    
+    visible_devices = ""
+    if "gpu_choose" in this_train_data:
+        for item in this_train_data["gpu_choose"]:
+            visible_devices += "%s," % str(item)
+        visible_devices = visible_devices[:-1]
+        os.environ['CUDA_VISIBLE_DEVICES'] = visible_devices
+    
+    
     launch(
         main_func=main,
         num_gpus_per_machine=num_gpu,
