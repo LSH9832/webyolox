@@ -9,9 +9,9 @@ fp16: false
 # weight file
 
 weight_size: 's'  # m,l,x,tiny
-model_path: './trt_s.pth'
-is_trt_file: true
-classes_file: 'coco_classes.txt'
+model_path: './yolox-s.pth'
+is_trt_file: false
+classes_file: './coco_classes.txt'
 
 # input source
 
