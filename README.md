@@ -107,7 +107,7 @@ if __name__ == "__main__":
     ckpt = torch.load(weight_file)["model"]
     my_model.load_state_dict(ckpt)
     backbone_params = my_model.backbone.state_dict()
-    torch.save(backbone_params, "./weight/%s_backbone.pth" % model_size)
+    torch.save({"backbone": backbone_params}, "./weight/%s_backbone.pth" % model_size)
     print("done")
 
 ```
