@@ -90,31 +90,54 @@ web运行环境安装
 即可，剩下的都要安装到训练环境中。
 为了方便，最好就是web运行环境与训练环境都用同一个环境。
 ### 2.2 训练配置
+#### 2.2.1 batch_size
 设置训练配置的时候，batch_size一定要是你所要使用的GPU个数的整数倍！！不然会报错！！
+#### 2.2.2 使用预训练模型
+由于自己的数据集不一定和coco数据集一样有80个类，所以只有backbone的预训练参数是能用的，本项目支持仅载入backbone的操作，由于模型文件过大，在文件夹weight下仅提供tiny的backbone。需要使用其他大小的模型文件请先到YOLOX官方项目下下载相应的模型文件，然后在根目录下使用以下代码进行转换生成backbone模型文件。
+
+```python
+import torch
+from yolox.model import Exp
+
+model_size = "s"   # m, l, x, tiny
+weight_file = "./yolox_s.pth"
+
+if __name__ == "__main__":
+    my_model = Exp("yolox-%s" % model_size).get_model()
+    ckpt = torch.load(weight_file)["model"]
+    my_model.load_state_dict(ckpt)
+    backbone_params = my_model.backbone.state_dict()
+    torch.save(backbone_params, "./weight/%s_backbone.pth" % model_size)
+    print("done")
+
+```
+
+若要使用预训练模型，只需填写“./weight/XXX_backbone.pth”即可。然后生成了完整的模型文件后，如果断点继续训练，则填写“./settings/训练名称/output/last.pth”
+
 ### 2.3 训练开始时
 刚开始点了“开始训练”后，训练程序会过几秒后甚至十几秒后才会生成日志文件，所以请等一会儿再点击“查看日志”，在日志中显示开始第一轮训练后才会生成数据，此时再打开“详情”才会有相应数据显示。
 ### 2.4 使用自己训练的权重文件
 如果已经训练了至少一个epoch，则会有权重文件生成，点进列表的“详情”中即可下载到自己的电脑中，如果要使用的话，在登录进去的列表页面，右上角有一个“下载测试代码”，可以运行detect.py文件查看效果。在运行前打开配置文件detect_settings.yaml进行修改，把模型大小改成自己模型文件对应的大小，模型文件名改成自己训练的权重文件的名字，然后source改成自己的摄像头或者视频名称即可。
+
 ```yaml
-confidence_thres: 0.4
-nms_thres: 0.5
+# detect params
+confidence_thres: 0.2
+nms_thres: 0.3
 device: 'gpu'  # cpu
 auto_choose_device: true
 input_size: 640
-fp16: false
-weight_size: 's'  # m,l,x,tiny
-model_path: './best.pth'      # 改成你自己权重文件的名字
-is_trt_file: false          # 是否使用的是用trt.py转换为tensorrt加速后的文件，转换方法见文件夹内txt文件
-classes_file: 'coco_classes.txt'
-source: 'test.mkv'        #  0      'assets/dog.jpg'   '/path/to/your/image_dir' 改成你自己的source
-source_type: 'vid'        # 'cam'   'image'            'image_dir'               改成对应的类别
-save_image: false
-show_image: true
-start_with_pause: false   # 如果是一些没有时间关联的图片的话，改为true一帧一帧查看效果会好一点, 运行时按空格键切换模式
+fp16: true
+
+# weight file
+weight_size: 's'                    # m,l,x,tiny
+model_path: './best.pth'            # 改成你自己权重文件的名字
+classes_file: './coco_classes.txt'
+is_trt_file: false                  # 是否使用的是用trt.py转换为tensorrt加速后的文件，转换方法见文件夹内txt文件
 ```
+
 然后就可以运行
 ```python3
-python detect.py --multi   # 多进程运行，播放速度块
-python detect.py           # 单进程运行
+python3 detect.py
 ```
+
 看看训练得怎么样了！
