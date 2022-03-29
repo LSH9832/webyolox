@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WEB-YOLOX 创建新的训练配置</title>
+    <link rel="stylesheet" type="text/css" href="file/login.css"/>
+</head>
+<body>
+    <div id="create">
+        <center><h1>创建训练配置</h1></center>
+        <form method="post" action="/basic_settings">
+            <p><center>
+            <input type="text" placeholder="训练名称（不建议使用中文字符）" name="train_name" required />
+            </center></p>
+            <p><center>
+            <input type="text" placeholder="使用的数据集目录" name="data_dir" required />
+            </center></p>
+            <center><button class="but" type="submit">创建</button></center>
+        </form>
+    </div>
+</body>
+</html>

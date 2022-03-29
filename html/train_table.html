@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html style="height: 85%">
+    <head>
+        <meta charset="utf-8">
+        <title>WEB-YOLOX 训练详情</title>
+        <link rel="stylesheet" type="text/css" href="file/table.css"/>
+    </head>
+    <style type="text/css">
+        #weight_box {
+            /* 父容器设置宽度, 并超出部分不显示 */
+            background-color: rgba(255, 255, 255, 0.5);
+            width: 90%;
+            height: 90%;
+            min-height: ;
+            overflow: hidden;
+        }
+        #weight_box > div {
+            /* 子容器比父容器的宽度多 17 px, 经测正好是滚动条的默认宽度 */
+            width: 100%;
+            height: 100%;
+            line-height: 30px;
+            text-align: center;
+            overflow-y: scroll;
+        }
+    </style>
+    <body style="height: 100%; margin: 0;background-color: #dddddd">
+        <br>
+        <center><h2>SETTING_NAME 训练详情</h2></center>
+        <div style="width: 100%;height: 100%;display: flex">
+            <div style="width: 45%;height: 100%;">
+                <div id="container1" style="width:100%;height:45%;padding-top: 2.5%;padding-left: 2%"></div>
+                <div id="container2" style="width:100%;height:45%;padding-top: 5%;padding-left: 2%"></div>
+            </div>
+            <div style="width: 2px;height: 100%;background-color: #666666;margin-left: 4%"></div>
+            <div style="width: 45%;height: 100%;">
+                <div id="container3" style="width:100%;height:45%;padding-top: 2.5%;padding-left: 2%"></div>
+                <div id="container4" style="width:100%;height:45%;padding-top: 2.5%;padding-left: 2%">
+                    <center style="height: 100%">
+                        <h3>已生成的权重文件</h3>
+                        <div id="weight_box">
+                            <div id="weight_list"></div>
+                        </div>
+                    </center>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="/file/echarts.min.js"></script>
+        <!-- Uncomment this line if you want to dataTool extension
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/extension/dataTool.min.js"></script>
+        -->
+        <!-- Uncomment this line if you want to use gl extension
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl@2/dist/echarts-gl.min.js"></script>
+        -->
+        <!-- Uncomment this line if you want to echarts-stat extension
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat@latest/dist/ecStat.min.js"></script>
+        -->
+        <!-- Uncomment this line if you want to use map
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/map/js/china.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/map/js/world.js"></script>
+        -->
+        <!-- Uncomment these two lines if you want to use bmap extension
+        <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=<Your Key Here>"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@{{version}}/dist/extension/bmap.min.js"></script>
+        -->
+
+        <script type="text/javascript">
+var dom = document.getElementById("container1");
+var dom2 = document.getElementById("container2");
+var dom3 = document.getElementById("container3");
+var weight_list = document.getElementById("weight_list");
+var myChart = echarts.init(dom);
+var myEpochChart = echarts.init(dom2);
+var myEvalChart = echarts.init(dom3);
+var app = {};
+
+var my_data = {
+    "cls_loss": [0 ],
+    "conf_loss": [0, ],
+    "epoch_cls_loss": [0.0],
+    "epoch_conf_loss": [0.0],
+    "epoch_iou_loss": [0.0],
+    "epoch_l1_loss": [0.0],
+    "epoch_pre": [1],
+    "epoch_total_loss": [0],
+    "iou_loss": [0.0, ],
+    "l1_loss": [0.0, ],
+    "lr": [0.0, ],
+    "memory_use": 0,
+    "now_epoch": 1,
+    "now_iter": [0,],
+    "total_epoch": 100,
+    "total_iter": 0,
+    "total_loss": [0,]
+};
+var my_eval_data = {
+    "ap50": [0.0],
+    "ap50_95": [0.0],
+    "now_epoch": [0],
+    "total_epoch": 100
+}
+
+var all_labels = ['total_loss', 'iou_loss', 'conf_loss', 'cls_loss', 'l1_loss'];
+var all_epoch_labels = ['epoch_total_loss', 'epoch_iou_loss', 'epoch_conf_loss', 'epoch_cls_loss', 'epoch_l1_loss'];
+var all_eval_labels = ['ap50', 'ap50_95']
+var option;
+var option2;
+var option3;
+
+function get_my_data() {
+    var httpRequest0 = new XMLHttpRequest();
+    httpRequest0.open('GET', '/train_all_msg?name=SETTING_NAME', true);
+    httpRequest0.send();
+
+    httpRequest0.onreadystatechange = function () {
+        if (httpRequest0.readyState == 4 && httpRequest0.status == 200) {
+            var json = httpRequest0.responseText;
+            my_data = eval('(' + json + ')');
+            console.log(my_data)
+        }
+    };
+}
+
+get_my_data();
+
+function data_show(x_data, y_data) {
+    var _raw_data = [];
+    var this_length = Math.min(x_data.length, y_data.length),
+        i = 0;
+    while(i < this_length) {
+        _raw_data.push([x_data[i], y_data[i]]);
+        i++;
+    }
+    return _raw_data
+}
+
+function create_option(tablename, data, x_label, y_label, data_only, showSym, maxshow=false, x_name='Iter') {
+
+    const x_data = eval("data." + x_label);
+    var this_series = [];
+    var num_label = y_label.length,
+        i = 0;
+    var minshow = x_data[0]
+    if (maxshow === false) {
+        maxshow = Math.max((SHOW_DATA_LENGTH-1) * PRINT_INTERVAL, x_data[x_data.length-1])
+        minshow = maxshow - (SHOW_DATA_LENGTH-1) * PRINT_INTERVAL
+    }
+    while (i < num_label) {
+        //console.log("data." + y_label[i]);
+        if (data_only) {
+            
+            this_series.push({
+                data: data_show(x_data, eval("data." + y_label[i]))
+            });
+            
+        } else {
+            
+            this_series.push({
+                name: y_label[i],
+                type: 'line',
+                showSymbol: showSym,
+                data: data_show(x_data, eval("data." + y_label[i]))
+            });
+        }
+        //console.log(x_data);
+        i++;
+    }
+    if (data_only) {return {series:this_series}}
+    
+    else return {
+      title: {text: tablename},
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          animation: false
+        }
+      },
+      legend: {data: y_label},
+      grid: {left: '3%', right: '5%', bottom: '3%', containLabel: true},
+      toolbox: {feature: {saveAsImage: {}}},
+      xAxis: {name:x_name, type: 'value', min: minshow, max: maxshow},
+      yAxis: {name:'Loss', type: 'value'},
+      animation: false,
+      series: this_series
+    }
+}
+
+option = create_option(
+    tablename="Iter loss",
+    data=my_data,
+    x_label="now_iter",
+    y_label=all_labels,
+    data_only=false,
+    showSym=false
+);
+
+if (option && typeof option === 'object') {
+    myChart.setOption(option);
+}
+
+option2 = create_option(
+    tablename="Epoch loss",
+    data=my_data,
+    x_label="epoch_pre",
+    y_label=all_epoch_labels,
+    data_only=false,
+    showSym=true,
+    maxshow=my_data.total_epoch,
+    x_name='Epoch'
+);
+
+if (option2 && typeof option2 === 'object') {
+    myEpochChart.setOption(option2);
+}
+
+option3 = create_option(
+    tablename="mAP",
+    data=my_eval_data,
+    x_label="now_epoch",
+    y_label=all_eval_labels,
+    data_only=false,
+    showSym=true,
+    maxshow=my_data.total_epoch,
+    x_name='Epoch'
+);
+
+if (option3 && typeof option3 === 'object') {
+    myEvalChart.setOption(option3);
+}
+
+setInterval(
+    function () {
+        var max_show = SHOW_DATA_LENGTH;
+        var httpRequest = new XMLHttpRequest();
+        var i = 0;
+        httpRequest.open('GET', '/train_latest_msg?name=SETTING_NAME', true);
+        httpRequest.send();
+        
+        httpRequest.onreadystatechange = function () {
+            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+                var json = httpRequest.responseText;
+                console.log(json);
+                //console.log(max_show);
+                json = eval('(' + json + ')');
+
+                const now_epoch = json.now_epoch;
+
+
+                i=0;
+                while (my_data.now_iter.length > max_show + 1) {my_data.now_iter.shift();}
+                while (i < all_labels.length) {
+                    while (eval("my_data." + all_labels[i]).length > max_show + 1) {eval("my_data." + all_labels[i]).shift();}
+                    i++;
+                }
+
+
+                //如果还没有到下一个epoch则更新当前epoch
+                if (now_epoch === my_data.epoch_pre[my_data.epoch_pre.length-1]) {
+                    i = 0;
+                    while (i < all_epoch_labels.length) {
+                        eval("my_data." + all_epoch_labels[i])[my_data.epoch_pre.length-1] = eval("json." + all_labels[i])
+                        i++;
+                    }
+                    i = 0;
+                    if (json.now_iter > my_data.now_iter[my_data.now_iter.length-1]) {
+                        //console.log(my_data);
+                        //console.log(my_data.now_iter.length);
+                        while (my_data.now_iter.length > max_show) {my_data.now_iter.shift();}
+                        //console.log(my_data.now_iter.length);
+
+                        my_data.now_iter.push(json.now_iter);
+
+                        while (i < all_labels.length) {
+                            console.log(eval("my_data." + all_labels[i]).length);
+                            while (eval("my_data." + all_labels[i]).length > max_show) {eval("my_data." + all_labels[i]).shift();}
+                            eval("my_data." + all_labels[i]).push(eval("json." + all_labels[i]));
+                            i++;
+                        }
+
+
+                    }
+                } else if (now_epoch > my_data.epoch_pre[my_data.epoch_pre.length-1]) {
+                    my_data.epoch_pre.push(now_epoch)
+                    while (i < all_epoch_labels.length) {
+                        eval("my_data." + all_epoch_labels[i]).push(eval("json." + all_labels[i]))
+                        i++;
+                    }
+                    get_my_data();
+                }
+                option = create_option("Iter loss", my_data, "now_iter", all_labels, false, false);
+                myChart.setOption(option);
+                option2 = create_option(
+                    tablename="Epoch loss",
+                    data=my_data,
+                    x_label="epoch_pre",
+                    y_label=all_epoch_labels,
+                    data_only=false,
+                    showSym=true,
+                    maxshow=my_data.total_epoch,
+                    x_name='Epoch'
+                );
+                myEpochChart.setOption(option2);
+
+
+            }
+        };
+    }, 
+    1000
+)
+
+setInterval(
+    function () {
+        var httpRequest = new XMLHttpRequest();
+        var i = 0;
+        httpRequest.open('GET', '/eval_msg?name=SETTING_NAME', true);
+        httpRequest.send();
+
+        httpRequest.onreadystatechange = function () {
+            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+                var json = httpRequest.responseText;
+                console.log(json);
+                my_eval_data = eval('(' + json + ')');
+                option3 = create_option(
+                    tablename="mAP",
+                    data=my_eval_data,
+                    x_label="now_epoch",
+                    y_label=all_eval_labels,
+                    data_only=false,
+                    showSym=true,
+                    maxshow=my_data.total_epoch,
+                    x_name='Epoch'
+                );
+                myEvalChart.setOption(option3);
+            }
+        };
+    },
+    1000
+)
+
+var weight_string = "";
+setInterval(
+    function () {
+        var httpRequest = new XMLHttpRequest();
+        httpRequest.open('GET', '/pth_msg?name=SETTING_NAME', true);
+        httpRequest.send();
+
+        httpRequest.onreadystatechange = function () {
+            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+                var new_weight_string = httpRequest.responseText;
+                if (new_weight_string !== weight_string) {
+                    weight_string = new_weight_string;
+                    weight_list.innerHTML = weight_string;
+                }
+
+            }
+        };
+    },
+    1000
+)
+
+function send_request(url, msg) {
+    if (confirm(msg)) {
+        var httpRequest = new XMLHttpRequest();
+        httpRequest.open('GET', url, true);
+        httpRequest.send();
+
+        httpRequest.onreadystatechange = function () {
+            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+                var msg_from_server = httpRequest.responseText;
+                alert(msg_from_server);
+            }
+        };
+    }
+}
+        </script>
+    </body>
+</html>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
