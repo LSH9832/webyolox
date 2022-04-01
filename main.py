@@ -2,7 +2,6 @@ import os
 import argparse
 from datetime import timedelta
 from glob import glob
-
 from flask import *
 import yaml
 
@@ -12,11 +11,12 @@ import create_html
 
 this_file_path = os.path.abspath(__file__)
 os.chdir(os.path.abspath(os.path.dirname(this_file_path)))
-print(os.getcwd())
+# print(os.getcwd())
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 app.permanent_session_lifetime = timedelta(days=7)      # 7天内免登录
+
 
 #############################################################################
 def make_parser():
@@ -30,7 +30,7 @@ def make_parser():
 #############################################################################
 # 定义用户名和密码
 def get_user_pwd():
-    return yaml.load(open('./run/user.yaml'), yaml.FullLoader)
+    return yaml.load(open('./run/user.yaml'), yaml.Loader)
 
 
 # 获取网页传回的表单
@@ -231,7 +231,7 @@ def save_hyp():
     double_param = ["basic_lr_per_img", "min_lr_ratio", "momentum", "warmup_lr", "weight_decay"]
     # [print(name, msg[name]) for name in msg]
     if os.path.isdir('./settings/%s' % msg["name"]):
-        old_msg = yaml.load(open('./settings/%s/hyp.yaml' % msg["name"]), yaml.FullLoader)
+        old_msg = yaml.load(open('./settings/%s/hyp.yaml' % msg["name"]), yaml.Loader)
         old_msg['ema'] = False
         for name in msg:
             if name in old_msg:
@@ -335,7 +335,7 @@ def train_details():
             if len(glob('./settings/%s/output/epochs/*' % msg['name'])):
                 length = msg['show_length'] if 'show_length' in msg else 30
                 hyp_file_name = './settings/%s/hyp.yaml' % msg['name']
-                hypmsg = yaml.load(open(hyp_file_name), yaml.FullLoader)
+                hypmsg = yaml.load(open(hyp_file_name), yaml.Loader)
                 print_interval = hypmsg["print_interval"]
                 return open('./html/train_table.html').read().replace(
                     'SHOW_DATA_LENGTH',
@@ -425,9 +425,7 @@ def main():
     return index()
 
 
-
 if __name__ == '__main__':
-
     os.makedirs('settings', exist_ok=True)
     args = make_parser().parse_args()
     print(args)
