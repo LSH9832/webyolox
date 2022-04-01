@@ -1,21 +1,21 @@
 body {
-    background-color: #ddd;
+    background-color: rgb(100,220,255);
 }
 
 table {
-  width: 70%;
+  width: 80%;
 }
 
 th {
-  background-color: #444;
+  background-color: rgb(0,170,255);
   color: white;
 }
 
 th, td {
-  border-bottom: 1px solid #999;
+  border-bottom: 1px solid #06a;
 }
 
 td:hover {
-    background-color: #bbb;
+    background-color: rgb(50,200,255);
 }
 

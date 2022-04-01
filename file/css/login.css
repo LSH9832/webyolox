@@ -9,7 +9,7 @@ body{
     height: 100%;
     font-family: 'Open Sans',sans-serif;
     margin: 0;
-    background-color: #ccc;
+    background-color: rgb(100,220,255);
 }
 #create, #login{
     position: absolute;
@@ -54,7 +54,7 @@ input{
     width: 300px;
     min-height: 20px;
     display: block;
-    background-color: #555;
+    background-color: rgb(0,100,185);
     border: 1px solid #444;
     color: #fff;
     padding: 9px 14px;
