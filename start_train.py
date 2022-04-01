@@ -53,7 +53,7 @@ def main(exp, json_data):
 
 def get_yaml_data(yaml_file_name):
     assert os.path.exists(yaml_file_name)
-    return yaml.load(open(yaml_file_name, encoding='utf8'), yaml.FullLoader)
+    return yaml.load(open(yaml_file_name, encoding='utf8'), yaml.Loader)
 
 
 if __name__ == "__main__":
