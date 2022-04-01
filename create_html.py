@@ -1,17 +1,23 @@
 import os
 # import json
 import yaml
+from torch.cuda import get_device_properties, device_count
 
 
 def get_gpu_number():
-    import os
-    total = 0
-    gpu_list = os.popen("nvidia-smi -L").readlines()
-    for gpu_msg in gpu_list:
-        if gpu_msg.startswith('GPU'):
-            total += 1
+    total = device_count()
+    gpu_list = []
+    for i in range(total):
+        msg = get_device_properties(i)
+        gpu_list.append("%s（%dMB）" % (msg.name, int(msg.total_memory/1024**2)))
+    #import os
+    # total = 0
+    #gpu_list = os.popen("nvidia-smi -L").readlines()
+    #for gpu_msg in gpu_list:
+    #    if gpu_msg.startswith('GPU'):
+    #        total += 1
     return total, gpu_list
-
+    
 
 def get_dirs_and_annos(data_root):
     from glob import glob
@@ -85,7 +91,7 @@ def extract_train_msg(setting_dir):
         msg_send[name] = []
     for line in total:
         if len(line):
-            now_msg = yaml.load(line, yaml.FullLoader)
+            now_msg = yaml.load(line, yaml.Loader)
             if now_iter < now_msg["now_iter"]:
                 now_iter = now_msg["now_iter"]
                 for name in others:
@@ -107,7 +113,7 @@ def extract_train_msg(setting_dir):
             if os.path.isfile(os.path.join(previews_epoch_dir, 'final')):
                 this_pre_data_file = os.path.join(previews_epoch_dir, 'final')
 
-            this_pre_data = yaml.load(open(this_pre_data_file).read(), yaml.FullLoader)
+            this_pre_data = yaml.load(open(this_pre_data_file).read(), yaml.Loader)
 
             msg_send['epoch_total_loss'].append(this_pre_data["total_loss"])
             msg_send['epoch_iou_loss'].append(this_pre_data["iou_loss"])
@@ -137,7 +143,7 @@ def extract_eval_msg(setting_dir):
         total = open('./settings/%s/output/eval' % setting_dir).read().split('\n')
         for line in total:
             if len(line):
-                now_msg = yaml.load(line, yaml.FullLoader)
+                now_msg = yaml.load(line, yaml.Loader)
                 if eval_msg["now_epoch"][-1] == now_msg["now_epoch"]:
                     eval_msg["ap50_95"][-1] = max(eval_msg["ap50_95"][-1], now_msg["ap50_95"])
                     eval_msg["ap50"][-1] = max(eval_msg["ap50"][-1], now_msg["ap50"])
@@ -222,7 +228,7 @@ def getBasicSettingsHtml(data_root, settings_dir):
     settings_exist = False
     if os.path.isfile('./settings/%s/settings.yaml' % settings_dir):
         settings_exist = True
-        msg = yaml.load(open('./settings/%s/settings.yaml' % settings_dir), yaml.FullLoader)
+        msg = yaml.load(open('./settings/%s/settings.yaml' % settings_dir), yaml.Loader)
     print(msg)
     train_dir_index = dir_list.index(msg['train_dataset_path'].split('/')[-1]) if settings_exist else 0
     val_dir_index = dir_list.index(msg['val_dataset_path'].split('/')[-1]) if settings_exist else 0
@@ -329,26 +335,26 @@ def getBasicSettingsHtml(data_root, settings_dir):
         ' checked' if save_each_epoch else ''
     )
     return """<html>
-	<head>
-		<title>WEB-YOLOX 训练基本配置</title>
-		<meta charset="utf-8">
-		<link rel="stylesheet" type="text/css" href="file/settings.css?new=true">
-	</head>
-	<body>
-		<form
-			action="/save_basic_settings"
-			method="post"
-			enctype="multiple/form-data"
-			class="elegant-aero"
-		>
-		<h3>YOLOX 训练基本配置</h3>
-		%s<br />
-		<div>
-		    训练名称:<br />
+    <head>
+        <title>WEB-YOLOX 训练基本配置</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="file/settings.css?new=true">
+    </head>
+    <body>
+        <form
+            action="/save_basic_settings"
+            method="post"
+            enctype="multiple/form-data"
+            class="elegant-aero"
+        >
+        <h3>YOLOX 训练基本配置</h3>
+        %s<br />
+        <div>
+            训练名称:<br />
             <input name="train_name" type="text" value="%s" readonly required><br />
         </div>
         <div>
-		    数据集根目录:<br />
+            数据集根目录:<br />
             <input name="data_dir" type="text" value="%s" readonly required><br />
         </div>
         <div class="selectline">
@@ -370,8 +376,8 @@ def getBasicSettingsHtml(data_root, settings_dir):
                 验证集标签文件:<br />
                 <select name = "val_anno" required>%s</select><br />
             </div>
-		</div>
-		<div class="selectline">
+        </div>
+        <div class="selectline">
             <div class="select">
                 模型大小:<br />
                 <select name = "model_size" required>
@@ -411,25 +417,22 @@ def getBasicSettingsHtml(data_root, settings_dir):
             <br /><textarea name="classes" placeholder="即将推出"></textarea><br />
         
             <br />
-		    <input type="reset" class="button" value="重置"> &nbsp;
-		    <input type="submit" class="button" value="提交"><br />
-		    
-		    <input type="hidden" name="token" value="null">
+            <input type="reset" class="button" value="重置"> &nbsp;
+            <input type="submit" class="button" value="提交"><br />
+            <input type="hidden" name="token" value="null">
 
-		
-		</form>
-	</body>
+        </form>
+    </body>
 </html>
 """ % strings
 
 
 def getHypSettingsHtml(settings_dir):
-    import os
-    import yaml
+
     if os.path.isdir('./settings/%s' % settings_dir):
         hyp_file_name = './settings/%s/hyp.yaml' % settings_dir
         assert os.path.isfile(hyp_file_name)
-        msg = yaml.load(open(hyp_file_name), yaml.FullLoader)
+        msg = yaml.load(open(hyp_file_name), yaml.Loader)
         warmup_epochs = msg["warmup_epochs"]
         warmup_lr = msg["warmup_lr"]
         basic_lr_per_img = msg["basic_lr_per_img"]
@@ -456,20 +459,20 @@ def getHypSettingsHtml(settings_dir):
         )
 
         return """<html>
-	<head>
-		<title>WEB-YOLOX 训练超参数配置</title>
-		<meta charset="utf-8">
+    <head>
+        <title>WEB-YOLOX 训练超参数配置</title>
+        <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="file/hyps.css?new=true">
-	</head>
-	<body>
-		<form
-			action="/save_hyp"
-			method="post"
-			enctype="multiple/form-data"
+    </head>
+    <body>
+        <form
+            action="/save_hyp"
+            method="post"
+            enctype="multiple/form-data"
             class="elegant-aero"
-		>
-		<h3>YOLOX训练超参数配置</h3><br /><br />
-		    正在配置: <input type="text" name="name" value="%s" readonly required/><br /><br />
+        >
+        <h3>YOLOX训练超参数配置</h3><br /><br />
+            正在配置: <input type="text" name="name" value="%s" readonly required/><br /><br />
             <div class="numberline">
                 <div class="number">
                     学习率预热次数<br />(warmup epochs):
@@ -518,11 +521,10 @@ def getHypSettingsHtml(settings_dir):
 
 
             <br /><br />
-		    <input type="reset" class="button" value="重置"> &nbsp;
-		    <input type="submit" class="button" value="提交"><br />
-            
-		</form>
-	</body>
+            <input type="reset" class="button" value="重置"> &nbsp;
+            <input type="submit" class="button" value="提交"><br />
+        </form>
+    </body>
 </html>
 """ % strings
     else:
@@ -664,9 +666,3 @@ def confirmDeleteSettingHtml(name: str):
     </body> 
 </html>""" % (name, name)
     return string_show
-
-
-
-
-
-
