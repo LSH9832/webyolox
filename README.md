@@ -1,4 +1,4 @@
-# WEB-YOLOX: 在网页端管理你的YOLOX训练过程！
+# WEB-YOLOX: 打开网页，实时管理你的YOLOX训练过程！
 
 <div align="center"><img src="src/details.png"></div>
 
