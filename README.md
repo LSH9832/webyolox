@@ -141,3 +141,6 @@ python3 detect.py
 ```
 
 看看训练得怎么样了！
+
+## 3.模型转换
+在yolox文件夹下，有转换为tensorrt模型的trt.py文件以及转换为onnx的torch2onnx.py文件，修改后在该目录下运行即可。
