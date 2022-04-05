@@ -182,7 +182,7 @@ class Trainer:
             self.ema_model.updates = self.max_iter * self.start_epoch
 
         self.model = model
-        if train_head_only:
+        if train_head_only and not self.is_distributed:
             self.model.backbone.eval()
             self.model.head.train()
         else:
