@@ -46,7 +46,7 @@ class Exp(MyExp):
         self.num_classes = class_num
 
     def load_yaml(self, yaml_name):
-        yaml_data = yaml.load(open(yaml_name, 'r'), yaml.FullLoader)
+        yaml_data = yaml.load(open(yaml_name, 'r'), yaml.Loader)
 
         self.warmup_epochs = yaml_data['warmup_epochs']
 
