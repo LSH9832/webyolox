@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html style="height: 85%">
+    <head>
+        <meta charset="utf-8">
+        <title>WEB-YOLOX 训练日志</title>
+        <link rel="stylesheet" type="text/css" href="file/table.css"/>
+    </head>
+    <style type="text/css">
+        #log_info1 {
+            /* 父容器设置宽度, 并超出部分不显示 */
+            background-color: rgba(255, 255, 255, 0.5);
+            height: 100%;
+            overflow: hidden;
+        }
+        #log_info1 > div {
+            /* 子容器比父容器的宽度多 17 px, 经测正好是滚动条的默认宽度 */
+            width: 100%;
+            height: 100%;
+            text-align: left;
+            overflow-y: scroll;
+        }
+    </style>
+    <body style="height: 100%; margin: 0;background-color: rgb(150,220,255)">
+        <br>
+        <center><h2>{{SETTING_NAME}} 训练日志</h2></center>
+        <div style="width: 96%;height: 100%;padding-left:2%" id="log_info0">
+            <div id="log_info1">
+                <div id="log_info"></div>
+            </div>
+        </div>
+        <script type="text/javascript">
+var logger = document.getElementById("log_info");
+
+
+setInterval(
+    function () {
+        var httpRequest = new XMLHttpRequest();
+        httpRequest.open('GET', '/train_log?name={{SETTING_NAME}}&lines={{LINE_LENGTH}}', true);
+        httpRequest.send();
+
+        httpRequest.onreadystatechange = function () {
+            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+                var text = httpRequest.responseText;
+                console.log(text);
+                logger.innerText = text;
+            }
+        };
+    },
+    1000
+)
+        </script>
+    </body>
+</html>
