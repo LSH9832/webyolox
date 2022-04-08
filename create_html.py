@@ -17,7 +17,7 @@ def get_gpu_number():
     #    if gpu_msg.startswith('GPU'):
     #        total += 1
     return total, gpu_list
-    
+
 
 def get_dirs_and_annos(data_root):
     from glob import glob
@@ -310,7 +310,7 @@ def getBasicSettingsHtml(data_root, settings_dir):
             else '',
             i + 1
         )
-        gpu_msg_string += "%d. <strong style='color:rgb(70,230,100);'>%s</strong><br />" % (
+        gpu_msg_string += "%d. <strong style='color:rgb(65,250,80);'>%s</strong><br />" % (
             i + 1,
             gpu_msg[i].split('(')[0].split(':')[-1]
         )
@@ -329,6 +329,7 @@ def getBasicSettingsHtml(data_root, settings_dir):
         epochs,
         batch_size,
         start_epoch,
+        settings_dir,
         pretrained_file,
         gpu_choose,
         ' checked' if fp16 else '',
@@ -405,7 +406,7 @@ def getBasicSettingsHtml(data_root, settings_dir):
         </div>
         <div>
             预训练模型文件:<br />
-            <input name="pretrained_weight_file" placeholder="不使用则不填，模型大小一定要对应上" type="text" value="%s"><br />
+            <input name="pretrained_weight_file" placeholder="不使用不填，大小一定要对应(backbone file:./weight/XX_backbone.pth, ckpt file:./settings/%s/output/last.pth)" type="text" value="%s"><br />
         </div>
         <div>
             使用的GPU编号:<br />
@@ -564,7 +565,7 @@ def getSettingsListHtml():
             i + 1,
             '%s&nbsp;&nbsp;<a href="/train_details?name=%s&show_length=30" target="_blank">详情</a>' % (item['name'], item['name']),
             '<text style="color:green">已完成配置</text>' if item['ok'] else '<text style="color:red">未完成配置</text>',
-            '<text style="color:green">正在训练, <a href="/train_log?name=%s&lines=30" style="color:green" target="_blank">点此查看日志</a></text>' % item['name'] if is_train else '<text style="color:red">未在训练</text>',
+            '<text style="color:green">正在训练, <a href="/train_log?name=%s&line_length=30" style="color:green" target="_blank">点此查看日志</a></text>' % item['name'] if is_train else '<text style="color:red">未在训练</text>',
             '<a href="/edit_setting?name=%s">修改基本配置</a>&nbsp;&nbsp;'
             '<a href="/edit_hyp?name=%s">修改超参数</a>&nbsp;&nbsp;'
             '%s'
@@ -666,3 +667,9 @@ def confirmDeleteSettingHtml(name: str):
     </body> 
 </html>""" % (name, name)
     return string_show
+
+
+
+
+
+
