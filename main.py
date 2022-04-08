@@ -13,7 +13,7 @@ this_file_path = os.path.abspath(__file__)
 os.chdir(os.path.abspath(os.path.dirname(this_file_path)))
 # print(os.getcwd())
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="./html")
 app.config['SECRET_KEY'] = os.urandom(24)
 app.permanent_session_lifetime = timedelta(days=7)      # 7天内免登录
 
@@ -312,17 +312,25 @@ def stop_train():
 @app.route('/train_log', methods=["GET", "POST"])
 def train_log():
     msg = get_web_get()
-    # print(msg)30
     is_training = create_html.is_training(msg['name'])
-    lines = int(msg['lines']) if 'lines' in msg else 30
-    if is_training:
-        all_lines = open('./settings/%s/output/train_log.txt' % msg['name']).readlines()[-lines:]
-        send_string = ""
-        for line in all_lines:
-            send_string += line.replace('\n', '<br \\>')
-        return create_html.jump2Html('/train_log?name=%s&lines=%s' % (msg['name'], str(lines)), send_string, 1)
+    log_name = './settings/%s/output/train_log.txt' % msg['name']
+    if os.path.exists(log_name):
+        if "lines" in msg:
+            lines = int(msg['lines'])
+            all_lines = open(log_name).readlines()[-lines:]
+            send_string = ""
+            for line in all_lines:
+                send_string += line  # .replace('\n', '<br \\>')
+
+            return send_string + ("" if is_training else "\n[Not Training Now!]")
+        else:
+            params = {
+                "SETTING_NAME": msg['name'],
+                "LINE_LENGTH": msg["line_length"] if "line_length" in msg else 30
+            }
+            return render_template("train_log.html", **params)
     else:
-        return create_html.jump2Html('/settings_list', '没在训练！！！', 1)
+        return create_html.jump2Html('/settings_list', 'log file not found！！！', 1)
 
 
 @app.route('/train_details', methods=["GET", "POST"])
