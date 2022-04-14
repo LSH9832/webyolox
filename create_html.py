@@ -215,7 +215,8 @@ def getBasicSettingsHtml(data_root, settings_dir):
         'm': 'medium',
         'l': 'large',
         'x': 'extra large',
-        'tiny': 'tiny'
+        'tiny': 'tiny',
+        'nano': 'nano'
     }
     gpu_num, gpu_msg = get_gpu_number()
     data_root = os.path.abspath(data_root).replace('\\', '/')
