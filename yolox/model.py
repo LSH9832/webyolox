@@ -33,11 +33,21 @@ class Exp(MyExp):
         elif self.exp_name == 'yolox-tiny':
             self.depth = 0.33
             self.width = 0.375
-            #self.input_scale = (416, 416)
+            self.input_scale = (416, 416)
             self.mosaic_scale = (0.5, 1.5)
             self.random_size = (10, 20)
-            #self.test_size = (416, 416)
+            self.test_size = (416, 416)
             self.enable_mixup = False
+        elif self.exp_name == "yolox-nano":
+            self.depth = 0.33
+            self.width = 0.25
+            self.input_size = (416, 416)
+            self.random_size = (10, 20)
+            self.mosaic_scale = (0.5, 1.5)
+            self.test_size = (416, 416)
+            self.mosaic_prob = 0.5
+            self.enable_mixup = False
+            self.depthwise = True
 
         self.output_dir = output_dir
         self.data_dir, self.train_dir, self.val_dir = data_dir, train_dir, val_dir
