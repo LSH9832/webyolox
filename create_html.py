@@ -505,7 +505,7 @@ def getHypSettingsHtml(settings_dir):
             </div>
             <div class="numberline">
                 <div class="number">
-                    末尾停用数据增强次数<br />(no aug epochs):
+                    末尾停用数据增强次数<br />(no mosaic epochs):
                     <input type="number" name="no_aug_epochs" value="%s" required/>
                 </div>
                 <div class="number">
