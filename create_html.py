@@ -572,7 +572,7 @@ def getSettingsListHtml():
             i + 1,
             '%s&nbsp;&nbsp;<a href="/train_details?name=%s&show_length=30" target="_blank">详情</a>' % (item['name'], item['name']),
             '<text style="color:green">已完成配置</text>' if item['ok'] else '<text style="color:red">未完成配置</text>',
-            '<text style="color:green">正在训练, <a href="/train_log?name=%s&line_length=30" style="color:green" target="_blank">点此查看日志</a></text>' % item['name'] if is_train else '<text style="color:red">未在训练</text>',
+            '<text style="color:green">正在训练, <a href="/train_log?name=%s&line_length=40" style="color:green" target="_blank">点此查看日志</a></text>' % item['name'] if is_train else '<text style="color:red">未在训练</text>',
             '<a href="/edit_setting?name=%s">修改基本配置</a>&nbsp;&nbsp;'
             '<a href="/edit_hyp?name=%s">修改超参数</a>&nbsp;&nbsp;'
             '%s'
