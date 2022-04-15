@@ -2,6 +2,7 @@ import os
 import argparse
 from datetime import timedelta
 from glob import glob
+
 from flask import *
 import yaml
 
@@ -11,12 +12,11 @@ import create_html
 
 this_file_path = os.path.abspath(__file__)
 os.chdir(os.path.abspath(os.path.dirname(this_file_path)))
-# print(os.getcwd())
+print(os.getcwd())
 
-app = Flask(__name__, template_folder="./html")
+app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 app.permanent_session_lifetime = timedelta(days=7)      # 7天内免登录
-
 
 #############################################################################
 def make_parser():
@@ -30,7 +30,7 @@ def make_parser():
 #############################################################################
 # 定义用户名和密码
 def get_user_pwd():
-    return yaml.load(open('./run/user.yaml'), yaml.Loader)
+    return yaml.load(open('./run/user.yaml'), yaml.FullLoader)
 
 
 # 获取网页传回的表单
@@ -207,6 +207,11 @@ def save_basic():
         "val_annotation_file": '%sannotations/%s' % (msg['data_dir'], msg['val_anno']),
         "val_dataset_path": '%s%s' % (msg['data_dir'], msg['val_dir']),
     }
+    class_string = msg["classes"]
+    if class_string.endswith("\n"):
+        class_string = class_string[:-1]
+    if len(class_string) and os.path.isdir(msg["data_dir"]):
+        open(os.path.join(msg["data_dir"], "classes.txt"), "w").write(class_string)
     try:
         gpu_choose = msg["gpu_choose"]
         gpu_choose.replace("；", ";").replace(" ", "").replace("\r", "")
@@ -231,7 +236,7 @@ def save_hyp():
     double_param = ["basic_lr_per_img", "min_lr_ratio", "momentum", "warmup_lr", "weight_decay"]
     # [print(name, msg[name]) for name in msg]
     if os.path.isdir('./settings/%s' % msg["name"]):
-        old_msg = yaml.load(open('./settings/%s/hyp.yaml' % msg["name"]), yaml.Loader)
+        old_msg = yaml.load(open('./settings/%s/hyp.yaml' % msg["name"]), yaml.FullLoader)
         old_msg['ema'] = False
         for name in msg:
             if name in old_msg:
@@ -312,25 +317,17 @@ def stop_train():
 @app.route('/train_log', methods=["GET", "POST"])
 def train_log():
     msg = get_web_get()
+    # print(msg)30
     is_training = create_html.is_training(msg['name'])
-    log_name = './settings/%s/output/train_log.txt' % msg['name']
-    if os.path.exists(log_name):
-        if "lines" in msg:
-            lines = int(msg['lines'])
-            all_lines = open(log_name).readlines()[-lines:]
-            send_string = ""
-            for line in all_lines:
-                send_string += line  # .replace('\n', '<br \\>')
-
-            return send_string + ("" if is_training else "\n[Not Training Now!]")
-        else:
-            params = {
-                "SETTING_NAME": msg['name'],
-                "LINE_LENGTH": msg["line_length"] if "line_length" in msg else 30
-            }
-            return render_template("train_log.html", **params)
+    lines = int(msg['lines']) if 'lines' in msg else 30
+    if is_training:
+        all_lines = open('./settings/%s/output/train_log.txt' % msg['name']).readlines()[-lines:]
+        send_string = ""
+        for line in all_lines:
+            send_string += line.replace('\n', '<br \\>')
+        return create_html.jump2Html('/train_log?name=%s&lines=%s' % (msg['name'], str(lines)), send_string, 1)
     else:
-        return create_html.jump2Html('/settings_list', 'log file not found！！！', 1)
+        return create_html.jump2Html('/settings_list', '没在训练！！！', 1)
 
 
 @app.route('/train_details', methods=["GET", "POST"])
@@ -343,7 +340,7 @@ def train_details():
             if len(glob('./settings/%s/output/epochs/*' % msg['name'])):
                 length = msg['show_length'] if 'show_length' in msg else 30
                 hyp_file_name = './settings/%s/hyp.yaml' % msg['name']
-                hypmsg = yaml.load(open(hyp_file_name), yaml.Loader)
+                hypmsg = yaml.load(open(hyp_file_name), yaml.FullLoader)
                 print_interval = hypmsg["print_interval"]
                 return open('./html/train_table.html').read().replace(
                     'SHOW_DATA_LENGTH',
@@ -433,7 +430,9 @@ def main():
     return index()
 
 
+
 if __name__ == '__main__':
+
     os.makedirs('settings', exist_ok=True)
     args = make_parser().parse_args()
     print(args)
