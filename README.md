@@ -5,7 +5,7 @@
 # webyolox
 2021年旷视研究院推出的YOLOX算法性能相当可以，给的源码条理也非常清晰，嵌入式部署也非常方便，但无论如何，训练的时候部署数据集还有相应环境等还是很费时间的，所以呢，这个网页端管理界面能够帮你节省很多时间。
 ## 快速开始
-**不想看介绍想直接用**的同学（我就是这种人，建议至少还是看一下注意）copy下面代码到服务器上运行就行(前提是安装完了**cuda,cudnn,torch,torchvision**哈)
+**不想看介绍想直接用**的同学（我就是这种人，建议**至少还是看一下注意**）copy下面代码到服务器上运行就行(前提是安装完了**cuda,cudnn,torch,torchvision**哈)
 ```shell
 sudo apt install screen
 git clone https://github.com/LSH9832/webyolox.git
@@ -25,7 +25,7 @@ python3 main.py -p 8080 --debug
 - 网页服务程序不会占用显卡，只有在你点击“开始训练”后，才会另起一个程序运行训练代码。
 - 网页端很多地方没有做输入非法验证，用的时候尽量不要乱输入请求的地址，还有改掉默认的用户名和密码的时候也不要输入特殊字符，没有做屏蔽特殊字符的功能（懒得做了，真的，这个项目就我一个人做，做了一个多星期了，疲惫ing。。。），你要这样把程序搞崩了我也没办法。就正常用就好。
 - 最好不要把这个web服务端口开放到公网上，我也不知道安全不安全。
-- 数据集一定要是COCO格式的，也就是在数据集的主目录下，文件夹annotations（**注意文件夹的名字一定是annotations**）里放json标签文件，然后其他文件夹分别放训练集图片和验证集图片（文件夹名字不限，两个集合的图片所在文件夹可以相同），**训练集主目录下一定要放一个类别文件，并命名为classes.txt，每行写好类别的名称，中间和结尾不要有空行（格式见./yolox/coco_classes.txt）**
+- 数据集一定要是COCO格式的，也就是在数据集的主目录下，文件夹annotations（**注意文件夹的名字一定是annotations**）里放json标签文件，然后其他文件夹分别放训练集图片和验证集图片（文件夹名字不限，两个集合的图片所在文件夹可以相同），**训练集主目录下一定要放一个类别文件，并命名为classes.txt，每行写好类别的名称，中间和结尾不要有空行（格式见./yolox/coco_classes.txt）** 附上COCO2017数据集下载地址<br> [训练集图像（18G）](http://images.cocodataset.org/zips/train2017.zip) <br> [验证集图像（1G）](http://images.cocodataset.org/zips/val2017.zip) <br> [测试集图像（6G）](http://images.cocodataset.org/zips/test2017.zip) <br> [训练集/验证集标签（241M）](http://images.cocodataset.org/annotations/annotations_trainval2017.zip)
 - 想要使用预训练模型文件的同学请到 **[yolox原项目](https://github.com/Megvii-BaseDetection/YOLOX)** 里面下载，这里给出链接。<br> [yolox_s.pth](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.pth)<br> [yolox_m.pth](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_m.pth)<br> [yolox_l.pth](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_l.pth)<br> [yolox_x.pth](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_x.pth)<br> [yolox_tiny.pth](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.pth)<br> [yolox_nano.pth](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_nano.pth)
 - 目前还没有想到别的，想到了再加。
 
