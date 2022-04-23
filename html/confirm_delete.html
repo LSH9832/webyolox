@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{{web_name}} 确认删除配置</title>
+        <link rel="stylesheet" type="text/css" href="file/login.css?new=true">
+    </head>
+    <body>
+        <center>
+            <div id="create">
+                <h1>您正要删除配置: {{name}}</h1>
+                <form id="confirm" name="confirm" action="/confirm_delete" method="post">
+                     <div id="msg" style="color:red"></div>
+                     <p><input type="text" name="inputname" placeholder="请输入该配置名称以确认删除" required/></p>
+                     <input type="hidden" name="name" value="{{name}}" required/>
+                     <button class="but" type="button" onclick="confirm_and_submit();">确认删除</button>
+                </form>
+            </div>
+        </center>
+        <script type="text/javascript">
+            confirm_and_submit = function () {
+                var confirm = document.getElementById("confirm");
+                var real_name = confirm.name.value;
+                var input_name = confirm.inputname.value;
+                var msg = document.getElementById("msg");
+                if (real_name === input_name) {
+                    confirm.submit();
+                }
+                else {
+                    msg.innerHTML = "<p>输入错误！</p>";
+                    console.log("wrong input: " + msg.value);
+                }
+            }
+        </script>
+        <!-script src="/file/confirm_delete.js?new=true" />
+    </body>
+</html>

@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <title>{{web_name}} 训练配置列表</title>
+        <link rel="stylesheet" type="text/css" href="file/table.css?new=true">
+    </head>
+    <body>
+        <div style="display: flex;">
+            <div style="width: 50%"><a href="/set_interpreter">设置解释器</a>&nbsp;&nbsp;当前解释器: {{now_interpreter}}</div>
+            <div style="width: 50%">
+                <div style="float: right;padding-right: 10px;">
+                    <a href="/file/yolox_base.zip">下载测试代码</a>&nbsp;&nbsp;
+                    <a href="/change_user_pwd">修改用户名和密码</a>&nbsp;&nbsp;
+                    <a href="/logout">注销</a>
+                </div>
+            </div>
+        </div>
+        <center>
+            <h2>训练配置列表</h2>
+            <a href="/create_new_setting">创建新的训练配置</a>
+            <div id="table"></div>
+        </center>
+        <script type="text/javascript">
+var httpRequest0 = new XMLHttpRequest();
+httpRequest0.open('GET', '/settings_list?table=1', true);
+httpRequest0.send();
+
+httpRequest0.onreadystatechange = function () {
+    if (httpRequest0.readyState == 4 && httpRequest0.status == 200) {
+        var text = httpRequest0.responseText;
+        var table = document.getElementById("table");
+        table.innerHTML = text;
+    }
+};
+        </script>
+    </body>
+</html>

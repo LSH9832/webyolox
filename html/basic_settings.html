@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <title>{{web_name}} 训练基本配置</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="file/settings.css?new=true">
+    </head>
+    <body>
+        <form
+            action="/save_basic_settings"
+            method="post"
+            enctype="multiple/form-data"
+            class="elegant-aero"
+        >
+        <h3>{{web_name}} 训练基本配置</h3>
+        {{gpu_msg_string|safe}}<br />
+        <div>
+            训练名称:<br />
+            <input name="train_name" type="text" value="{{settings_dir}}" readonly required><br />
+        </div>
+        <div>
+            数据集根目录:<br />
+            <input name="data_dir" type="text" value="{{data_root}}" readonly required><br />
+        </div>
+        <div class="selectline">
+            <div class="select">
+                训练集目录:<br />
+                <select name="train_dir" required>{{train_dir_string|safe}}</select><br />
+            </div>
+            <div class="select">
+                验证集目录:<br />
+                <select name="val_dir" required>{{val_dir_string|safe}}</select><br />
+            </div>
+        </div>
+        <div class="selectline">
+            <div class="select">
+                训练集标签文件:<br />
+                <select name="train_anno" required>{{train_anno_string|safe}}</select><br />
+            </div>
+            <div class="select">
+                验证集标签文件:<br />
+                <select name = "val_anno" required>{{val_anno_string|safe}}</select><br />
+            </div>
+        </div>
+        <div class="selectline">
+            <div class="select" style="width: 23.16%;">
+                骨干网络:<br />
+                <select name = "backbone_type" required>
+                    {{backbone_type_string|safe}}
+                </select><br />
+            </div>
+            <div class="select" style="width: 23.16%;">
+                模型大小:<br />
+                <select name = "model_size" required>
+                    {{model_size_string|safe}}
+                </select><br />
+            </div>
+            <div class="select" style="width: 23.16%;">
+                使用gpu个数:<br />
+                <select name = "gpu_num" required>{{gpu_string|safe}}</select><br />
+            </div>
+        </div>
+        <div class="numberline">
+            <div class="number">
+                训练次数(total epochs):<br />
+                <input type="number" name="epoch" value="{{epochs}}" required/><br />
+            </div>
+            <div class="number">
+                批次大小(batch size):<br />
+                <input type="number" name="batch_size" value="{{batch_size}}" required/><br />
+            </div>
+            <div class="number">
+                已训练次数（中断后可继续训练）:<br />
+                <input type="number" name="start_epoch" value="{{start_epoch}}" required/><br />
+            </div>
+        </div>
+        <div>
+            预训练模型文件:<br />
+            <input name="pretrained_weight_file" placeholder="不使用不填，大小一定要对应(backbone file:./weight/XX_backbone.pth, ckpt file:./settings/{{settings_dir}}/output/last.pth)" type="text" value="{{pretrained_file}}"><br />
+        </div>
+        <div>
+            使用的GPU编号:<br />
+            <input type="text" placeholder="参考可用GPU编号，用分号隔开，不填则按编号顺序使用GPU（示例：1;3）" name="gpu_choose" value="{{gpu_choose}}"/><br />
+        </div>
+            <input type="checkbox"{{check0}} name="fp16">使用混合精度训练(fp16)<br />
+            <input type="checkbox"{{check1}} name="save_each_epoch">每次训练均保存模型<br />
+
+            <br /><textarea name="classes" placeholder="类别名称，每行一个">{{class_string}}</textarea><br />
+
+            <br />
+            <input type="reset" class="button" value="重置"> &nbsp;
+            <input type="submit" class="button" value="提交"><br />
+            <input type="hidden" name="token" value="null">
+
+        </form>
+    </body>
+</html>

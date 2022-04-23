@@ -1,0 +1,68 @@
+<html>
+    <head>
+        <title>{{web_name}} 训练超参数配置</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="file/hyps.css?new=true">
+    </head>
+    <body>
+        <form
+            action="/save_hyp"
+            method="post"
+            enctype="multiple/form-data"
+            class="elegant-aero"
+        >
+        <h3>{{web_name}}训练超参数配置</h3><br /><br />
+            正在配置: <input type="text" name="name" value="{{settings_dir}}" readonly required/><br /><br />
+            <div class="numberline">
+                <div class="number">
+                    学习率预热次数<br />(warmup epochs):
+                    <input type="number" name="warmup_epochs" value="{{warmup_epochs}}" required/>
+                </div>
+                <div class="number">
+                    权重衰减系数<br />(weight decay):
+                    <input type="number" name="weight_decay" value="{{weight_decay}}" step="any" required/>
+                </div>
+                <div class="number">
+                    动量<br />(momentum):
+                    <input type="number" name="momentum" value="{{momentum}}" step="any" required/>
+                </div>
+            </div>
+            <div class="numberline">
+                <div class="number">
+                    预热起始学习率<br />(warmup learning rate):
+                    <input type="number" name="warmup_lr" value="{{warmup_lr}}" step="any" required/>
+                </div>
+                <div class="number">
+                    每张图片的初始学习率<br />(basic learning rate):
+                    <input type="number" name="basic_lr_per_img" value="{{basic_lr_per_img}}" step="any" required/>
+                </div>
+                <div class="number">
+                    最终学习率的比值<br />(final lr / basic lr):
+                    <input type="number" name="min_lr_ratio" value="{{min_lr_ratio}}" step="any" required/>
+                </div>
+            </div>
+            <div class="numberline">
+                <div class="number">
+                    末尾停用数据增强次数<br />(no aug epochs):
+                    <input type="number" name="no_aug_epochs" value="{{no_aug_epochs}}" required/>
+                </div>
+                <div class="number">
+                    输出训练结果间隔<br />(print per iteration)
+                    <input type="number" name="print_interval" value="{{print_interval}}" required/>
+                </div>
+                <div class="number">
+                    验证间隔<br />(validate per epoch)<br />
+                    <input type="number" name="eval_interval" value="{{eval_interval}}" required/><br />
+                </div>
+            </div>
+
+            <br />
+            <input type="checkbox" name="ema"{{ema}} />使用EMA策略(提升模型鲁棒性和性能)<br />
+
+
+            <br /><br />
+            <input type="reset" class="button" value="重置"> &nbsp;
+            <input type="submit" class="button" value="提交"><br />
+        </form>
+    </body>
+</html>
