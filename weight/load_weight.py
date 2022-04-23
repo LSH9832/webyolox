@@ -1,8 +1,10 @@
 import requests
 import threading
 
+
 lock = threading.Lock()
 now_size = 0
+
 
 def Handler(start, end, url, filename, file_size):
     global now_size
@@ -60,9 +62,6 @@ def download(url, file_name, num_thread=10):
         t.join()
     now_size = 0
     return 1
-
-# def download_single():
-
 
 
 if __name__ == '__main__':
