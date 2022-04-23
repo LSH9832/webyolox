@@ -1,3 +1,8 @@
+"""
+author: LSH9832
+
+for Linux only
+"""
 import os
 # os.system('sudo apt install screen -y')
 
@@ -49,6 +54,16 @@ class Screen(object):
 
 
 if __name__ == '__main__':
-
+    # import platform
+    # print(platform.system()=="Windows")
+    # open("test.bat", "w").write("")
+    # # os.popen("start test.bat")
+    # c = os.popen("tasklist|findstr 123")
+    # tasks = c.readlines()
+    # for task in tasks:
+    #     data = []
+    #     for item in task.split(" "):
+    #         data.append(item) if len(item) else None
+    #     print(data[1])
     a = Screen('test')
     a.release()

@@ -1,9 +1,14 @@
+"""
+author: LSH9832
+"""
 import os
 import argparse
 from datetime import timedelta
 from glob import glob
 from flask import *
 import yaml
+
+import platform
 
 from screen import Screen
 import create_html
@@ -13,14 +18,15 @@ this_file_path = os.path.abspath(__file__)
 os.chdir(os.path.abspath(os.path.dirname(this_file_path)))
 # print(os.getcwd())
 
-app = Flask(__name__, template_folder="./html")
+app = Flask(create_html.get_web_name(), template_folder="./html")
 app.config['SECRET_KEY'] = os.urandom(24)
 app.permanent_session_lifetime = timedelta(days=7)      # 7天内免登录
+SYSTEM = platform.system()
 
 
 #############################################################################
 def make_parser():
-    parser = argparse.ArgumentParser("WEB-YOLOX parser")
+    parser = argparse.ArgumentParser("%s parser" % create_html.get_web_name())
     parser.add_argument("-p", "--port", type=int, default=8080, help="running port")
     parser.add_argument("--debug", default=False, action="store_true", help="debug mode")
     parser.add_argument("--log-off", default=False, action="store_true", help="turn off logger")
@@ -63,7 +69,7 @@ def login_base():
             session['user'] = msg['username']
             return create_html.jump2Html('/', '登录成功', 1)
         return create_html.jump2Html('/login', '登录失败！', 1)
-    return send_file('./html/login.html')
+    return render_template('login.html', web_name=create_html.get_web_name())
 
 
 def logout_base():
@@ -130,14 +136,14 @@ def change_user_pwd():
     if 'new_username' in msg and 'new_password' in msg:
         yaml.dump({msg['new_username']: msg['new_password']}, open('./run/user.yaml', 'w'), yaml.Dumper)
         return create_html.jump2Html('/settings_list', 'success', 1)
-    return send_file('./html/change_user_pwd.html')
+    return render_template('change_user_pwd.html', web_name=create_html.get_web_name())
 
 
 #############################################################################
 # 参数配置 增删改查
 @app.route('/create_new_setting', methods=["GET", "POST"])
 def create_setting():
-    return send_file('./html/yolox_create.html')
+    return render_template('yolox_create.html', web_name=create_html.get_web_name())
 
 
 @app.route('/basic_settings', methods=["GET", "POST"])
@@ -197,6 +203,7 @@ def save_basic():
         "fp16": 'fp16' in msg,
         "gpu_num": int(msg['gpu_num']),
         "model_size": msg['model_size'],
+        "backbone_type": msg["backbone_type"] if "backbone_type" in msg else "origin",
         "output_dir": output_dir,
         "pretrained_weight_file": pretrained_file if use_pretrained_file else "no file selected",
         "save_each_epoch": 'save_each_epoch' in msg,
@@ -282,13 +289,26 @@ def start_train():
 
     is_training = os.path.exists('./settings/%s/pid' % msg['name'])
     if not is_training:
+        commands = []
+
         start_dir = os.path.abspath('./settings/%s' % msg['name'])
         python_file = os.path.abspath('./start_train.py')
         interpreter = open("./run/interpreter.txt").read().split('\n')[0]
 
-        this_screen = Screen(name=msg['name'])
-        this_screen.command('cd %s' % start_dir)
-        this_screen.command('%s %s' % (interpreter, python_file))
+        commands.append('cd %s' % start_dir)
+        commands.append('%s %s' % (interpreter, python_file))
+
+        if not SYSTEM == "Windows":
+            this_screen = Screen(name=msg['name'])
+            for command in commands:
+                this_screen.command(command)
+        else:
+            bat_file = os.path.join(start_dir, "train.bat")
+            bat_string = ""
+            for command in commands:
+                bat_string += "%s\n" % command
+            open(bat_file, 'w').write(bat_string)
+            os.popen("start %s" % bat_file)
 
         return create_html.jump2Html('/settings_list', '训练成功开始！', 1)
     else:
@@ -302,10 +322,13 @@ def stop_train():
     is_training = create_html.is_training(msg['name'])
     if is_training:
 
-        this_screen = Screen(name=msg['name'], create=False)
-        this_screen.stop()
-        create_html.stop_all_pid(msg['name'])
-        this_screen.release()
+        if not SYSTEM == "Windows":
+            this_screen = Screen(name=msg['name'], create=False)
+            this_screen.stop()
+            create_html.stop_all_pid(msg['name'])
+            this_screen.release()
+        else:
+            create_html.stop_all_pid(msg['name'])
 
         return create_html.jump2Html('/settings_list', 'success', 1)
     else:
@@ -333,7 +356,7 @@ def train_log():
                 "SETTING_NAME": msg['name'],
                 "LINE_LENGTH": msg["line_length"] if "line_length" in msg else 30
             }
-            return render_template("train_log.html", **params)
+            return render_template("train_log.html", web_name=create_html.get_web_name(), **params)
     else:
         return create_html.jump2Html('/settings_list', 'log file not found！！！', 1)
 
@@ -350,16 +373,14 @@ def train_details():
                 hyp_file_name = './settings/%s/hyp.yaml' % msg['name']
                 hypmsg = yaml.load(open(hyp_file_name), yaml.Loader)
                 print_interval = hypmsg["print_interval"]
-                return open('./html/train_table.html').read().replace(
-                    'SHOW_DATA_LENGTH',
-                    str(length)
-                ).replace(
-                    'PRINT_INTERVAL',
-                    str(print_interval)
-                ).replace(
-                    'SETTING_NAME',
-                    msg['name']
-                )
+
+                data = {
+                    'SHOW_DATA_LENGTH': str(length),
+                    'PRINT_INTERVAL': str(print_interval),
+                    'SETTING_NAME': msg['name']
+                }
+
+                return render_template('train_table.html', web_name=create_html.get_web_name(), **data)
         return create_html.jump2Html('/settings_list', '从未训练过，无详情', 1)
     return create_html.jump2Html('/settings_list', '不要乱改request，小老弟', 1)
 
@@ -417,7 +438,14 @@ def delete_pth():
 # 所有配置列表
 @app.route('/settings_list', methods=["GET", "POST"])
 def settings_list():
-    return create_html.getSettingsListHtml()
+    if not os.path.exists('./run/interpreter.txt'):
+        import sys
+        open('./run/interpreter.txt', 'w').write(sys.executable.replace("\\", "/"))
+    now_interpreter = open('./run/interpreter.txt').read()
+    data = get_web_get()
+    if "table" in data:
+        return create_html.getSettingsList()
+    return render_template("settings_list.html", web_name=create_html.get_web_name(), now_interpreter=now_interpreter)
 
 
 # 登录页面

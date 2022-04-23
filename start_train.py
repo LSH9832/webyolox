@@ -1,3 +1,7 @@
+"""
+author: LSH9832
+reference: https://github.com/Megvii-BaseDetection/YOLOX
+"""
 import os
 import sys
 
@@ -65,6 +69,10 @@ if __name__ == "__main__":
     val_dir = this_train_data['val_dataset_path']
     train_ann = this_train_data['train_annotation_file']
     val_ann = this_train_data['val_annotation_file']
+
+    backbone_type= "origin"
+    if "backbone_type" in this_train_data:
+        backbone_type = this_train_data["backbone_type"]
     
     
     class_file = os.path.join(data_dir, "classes.txt")
@@ -92,10 +100,10 @@ if __name__ == "__main__":
         class_num=class_num,
     )
 
+    logger.info("backbone type: %s" % backbone_type)
+    exp.set_backbone_type(backbone_type)
     exp.load_yaml(hyp_file)       # 载入超参数
-    #import time
-    #print("classes:", exp.num_classes)
-    #time.sleep(1000)
+
     # exp.merge(None)
     
     visible_devices = ""
@@ -105,8 +113,7 @@ if __name__ == "__main__":
         visible_devices = visible_devices[:-1]
         os.environ['CUDA_VISIBLE_DEVICES'] = visible_devices
         logger.info(visible_devices)
-    
-    
+
     launch(
         main_func=main,
         num_gpus_per_machine=num_gpu,

@@ -1,7 +1,15 @@
+"""
+author: LSH9832
+"""
 import os
-# import json
 import yaml
 from torch.cuda import get_device_properties, device_count
+from flask import render_template
+import platform
+
+
+def get_web_name():
+    return "WebYOLOX"
 
 
 def get_gpu_number():
@@ -10,12 +18,6 @@ def get_gpu_number():
     for i in range(total):
         msg = get_device_properties(i)
         gpu_list.append("%s（%dMB）" % (msg.name, int(msg.total_memory/1024**2)))
-    #import os
-    # total = 0
-    #gpu_list = os.popen("nvidia-smi -L").readlines()
-    #for gpu_msg in gpu_list:
-    #    if gpu_msg.startswith('GPU'):
-    #        total += 1
     return total, gpu_list
 
 
@@ -42,15 +44,28 @@ def get_dirs_and_annos(data_root):
 
 
 def is_training(setting_name):
-    is_training = False
+    training = False
     if os.path.exists('./settings/%s/output/pid' % setting_name):
         pids = open('./settings/%s/output/pid' % setting_name).read().split('\n')
         for this_pid in pids:
             if len(this_pid):
-                if os.path.isdir('/proc/%s' % this_pid):
-                    is_training = True
-                    break
-    return is_training
+                if platform.system() == "Linux":
+                    if os.path.isdir('/proc/%s' % this_pid):
+                        training = True
+                        break
+                elif platform.system() == "Windows":
+                    c = os.popen("tasklist|findstr %s" % this_pid)
+                    tasks = c.readlines()
+                    for task in tasks:
+                        data = []
+                        for item in task.split(" "):
+                            data.append(item) if len(item) else None
+                        if data[1] == this_pid:
+                            training = True
+                            break
+                    if training:
+                        break
+    return training
 
 
 def stop_all_pid(setting_name):
@@ -58,8 +73,19 @@ def stop_all_pid(setting_name):
         pids = open('./settings/%s/output/pid' % setting_name).read().split('\n')
         for this_pid in pids:
             if len(this_pid):
-                if os.path.isdir('/proc/%s' % this_pid):
-                    os.popen('kill -9 %s' % this_pid)
+                if platform.system() == "Linux":
+                    if os.path.isdir('/proc/%s' % this_pid):
+                        os.popen('kill -9 %s' % this_pid)
+                elif platform.system() == "Windows":
+                    c = os.popen("tasklist|findstr %s" % this_pid)
+                    tasks = c.readlines()
+                    for task in tasks:
+                        data = []
+                        for item in task.split(" "):
+                            data.append(item) if len(item) else None
+                        if data[1] == this_pid:
+                            os.popen('taskkill /pid %s -f' % this_pid)
+                            break
         os.remove('./settings/%s/output/pid' % setting_name)
 
 
@@ -186,6 +212,55 @@ def get_all_pth_files_list(setting_dir):
     return "<table style='width: 100%%'>%s%s</table>" % (string_head, string_show if len(string_show) else '')
 
 
+def getSettingsList():
+    from glob import glob
+    list_show = []
+    table_type = ["序号", "训练配置名称", "配置完成情况", "训练情况", "操作"]
+    string_show = ""
+    for this_type in table_type:
+        string_show += "<th>%s</th>" % this_type
+    string_show = "<tr>%s</tr>" % string_show
+    for path in sorted(glob('./settings/*')):
+        path = path.replace("\\", "/")
+        if os.path.isdir(path):
+            list_show.append({
+                'name': path.split('/')[-1],
+                'ok': os.path.isfile(os.path.join(path, 'settings.yaml'))
+            })
+
+    for i, item in enumerate(list_show):
+        is_train = is_training(item['name'])
+        train_command = 'start_train' if not is_train else 'stop_train'
+        train_cmd_show = '开始训练' if not is_train else '终止训练'
+        train_show = '<a href="/%s?name=%s">%s</a>&nbsp;&nbsp;' % (train_command, item['name'], train_cmd_show) \
+                     if item['ok'] else ''
+        string_show += """<tr>
+        <td><center>%d</center></td>
+        <td><center>%s</center></td>
+        <td><center>%s</center></td>
+        <td><center>%s</center></td>
+        <td><center>%s</center></td>
+        </tr>""" % (
+            i + 1,
+            '%s&nbsp;&nbsp;<a href="/train_details?name=%s&show_length=30" target="_blank">详情</a>' % (item['name'], item['name']),
+            '<text style="color:green">已完成配置</text>' if item['ok'] else '<text style="color:red">未完成配置</text>',
+            '<text style="color:green">正在训练, <a href="/train_log?name=%s&line_length=40" style="color:green" target="_blank">点此查看日志</a></text>' % item['name'] if is_train else '<text style="color:red">未在训练</text>',
+            '<a href="/edit_setting?name=%s">修改基本配置</a>&nbsp;&nbsp;'
+            '<a href="/edit_hyp?name=%s">修改超参数</a>&nbsp;&nbsp;'
+            '%s'
+            '%s' % (
+                item['name'],
+                item['name'],
+                train_show,
+                ('<a href="/delete_setting?name=%s">删除该配置</a>' % item['name']) if not is_train else ''
+            )
+        )
+
+    string_show = "<table>%s</table>" % string_show
+
+    return string_show
+
+
 #########################################################################################
 # 以下是完整的html
 def jump2Html(url, text: list or None = None, time_delay=0.):
@@ -197,19 +272,26 @@ def jump2Html(url, text: list or None = None, time_delay=0.):
     html_string = """<!DOCTYPE html>
 <html>
     <head>
-        <title>WEB-YOLOX 跳转提示</title>
+        <title>%s 跳转提示</title>
         <meta http-equiv="refresh" content="%s;url=%s">
     </head>
     <body>
         %s
     </body>
-</html>""" % (time_delay, url, msg)
+</html>""" % (get_web_name(), time_delay, url, msg)
     return html_string
 
 
 def getBasicSettingsHtml(data_root, settings_dir):
     import os
     import yaml
+    import sys
+    this_file_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+    running_path = os.path.join(this_file_dir, 'yolox')
+    sys.path.append(running_path)
+    from yolox.models import BACKBONE
+    backbone_name = [name for name in BACKBONE]
+
     all_model_size = {
         's': 'small',
         'm': 'medium',
@@ -237,12 +319,13 @@ def getBasicSettingsHtml(data_root, settings_dir):
     val_json_index = anno_list.index(msg['val_annotation_file'].split('/')[-1]) if settings_exist else 0
     model_size = msg['model_size'] if settings_exist else 's'
     use_gpu_num = msg['gpu_num'] if settings_exist else 0
-    epochs = msg['epochs'] if settings_exist else 100
-    batch_size = msg['batch_size'] if settings_exist else 12
+    epochs = msg['epochs'] if settings_exist else 300
+    batch_size = msg['batch_size'] if settings_exist else 16
     start_epoch = msg['start_epoch'] if settings_exist else 0
     pretrained_file = '' if not settings_exist else '' if msg['pretrained_weight_file'] == 'no file selected' else msg['pretrained_weight_file']
     fp16 = msg['fp16'] if settings_exist else False
     save_each_epoch = msg['save_each_epoch'] if settings_exist else False
+    backbone = msg["backbone_type"] if "backbone_type" in msg else "origin"
 
     def gpu_choose2str(my_list):
         this_string = ""
@@ -260,6 +343,7 @@ def getBasicSettingsHtml(data_root, settings_dir):
     model_size_string = ""
     gpu_string = ""
     class_string = ""
+    backbone_type_string = ""
 
     if os.path.exists(os.path.join(data_root, "classes.txt")):
         class_string = open(os.path.join(data_root, "classes.txt")).read()
@@ -298,6 +382,15 @@ def getBasicSettingsHtml(data_root, settings_dir):
             now_anno
         )
 
+    for this_backbone in backbone_name:
+        backbone_type_string += "<option value=%s%s>%s</option>" % (
+            this_backbone,
+            ' selected'
+            if this_backbone == backbone
+            else '',
+            this_backbone
+        )
+
     for this_model_size in all_model_size:
         model_size_string += '<option value="%s"%s>%s(%s)</option>' % (
             this_model_size,
@@ -322,117 +415,27 @@ def getBasicSettingsHtml(data_root, settings_dir):
         )
 
 
-    strings = (
-        gpu_msg_string,
-        settings_dir,
-        data_root,
-        train_dir_string,
-        val_dir_string,
-        train_anno_string,
-        val_anno_string,
-        model_size_string,
-        gpu_string,
-        epochs,
-        batch_size,
-        start_epoch,
-        settings_dir,
-        pretrained_file,
-        gpu_choose,
-        ' checked' if fp16 else '',
-        ' checked' if save_each_epoch else '',
-        class_string
-    )
-    return """<html>
-    <head>
-        <title>WEB-YOLOX 训练基本配置</title>
-        <meta charset="utf-8">
-        <link rel="stylesheet" type="text/css" href="file/settings.css?new=true">
-    </head>
-    <body>
-        <form
-            action="/save_basic_settings"
-            method="post"
-            enctype="multiple/form-data"
-            class="elegant-aero"
-        >
-        <h3>YOLOX 训练基本配置</h3>
-        %s<br />
-        <div>
-            训练名称:<br />
-            <input name="train_name" type="text" value="%s" readonly required><br />
-        </div>
-        <div>
-            数据集根目录:<br />
-            <input name="data_dir" type="text" value="%s" readonly required><br />
-        </div>
-        <div class="selectline">
-            <div class="select">
-                训练集目录:<br />
-                <select name="train_dir" required>%s</select><br />
-            </div>
-            <div class="select">
-                验证集目录:<br />
-                <select name="val_dir" required>%s</select><br />
-            </div>
-        </div>
-        <div class="selectline">
-            <div class="select">
-                训练集标签文件:<br />
-                <select name="train_anno" required>%s</select><br />
-            </div>
-            <div class="select">
-                验证集标签文件:<br />
-                <select name = "val_anno" required>%s</select><br />
-            </div>
-        </div>
-        <div class="selectline">
-            <div class="select">
-                模型大小:<br />
-                <select name = "model_size" required>
-                    %s
-                </select><br />
-            </div>
-            <div class="select">
-                使用gpu个数:<br />
-                <select name = "gpu_num" required>%s</select><br />
-            </div>
-        </div>
-        <div class="numberline">
-            <div class="number">
-                训练次数(total epochs):<br />
-                <input type="number" name="epoch" value="%s" required/><br />
-            </div>
-            <div class="number">
-                批次大小(batch size):<br />
-                <input type="number" name="batch_size" value="%s" required/><br />
-            </div>
-            <div class="number">
-                已训练次数（中断后可继续训练）:<br />
-                <input type="number" name="start_epoch" value="%s" required/><br />
-            </div>
-        </div>
-        <div>
-            预训练模型文件:<br />
-            <input name="pretrained_weight_file" placeholder="不使用不填，大小一定要对应(backbone file:./weight/XX_backbone.pth, ckpt file:./settings/%s/output/last.pth)" type="text" value="%s"><br />
-        </div>
-        <div>
-            使用的GPU编号:<br />
-            <input type="text" placeholder="参考可用GPU编号，用分号隔开，不填则按编号顺序使用GPU（示例：1;3）" name="gpu_choose" value="%s"/><br />
-        </div>
-            <input type="checkbox"%s name="fp16">使用混合精度训练(fp16)<br />
-            <input type="checkbox"%s name="save_each_epoch">每次训练均保存模型<br />
-            
-            <br /><textarea name="classes" placeholder="类别名称，每行一个">%s</textarea><br />
-        
-            <br />
-            <input type="reset" class="button" value="重置"> &nbsp;
-            <input type="submit" class="button" value="提交"><br />
-            <input type="hidden" name="token" value="null">
-
-        </form>
-    </body>
-</html>
-""" % strings
+    data = {
+        "gpu_msg_string": gpu_msg_string,
+        "settings_dir": settings_dir,
+        "data_root": data_root,
+        "train_dir_string": train_dir_string,
+        "val_dir_string": val_dir_string,
+        "train_anno_string": train_anno_string,
+        "val_anno_string": val_anno_string,
+        "backbone_type_string": backbone_type_string,
+        "model_size_string": model_size_string,
+        "gpu_string": gpu_string,
+        "epochs": epochs,
+        "batch_size": batch_size,
+        "start_epoch": start_epoch,
+        "pretrained_file": pretrained_file,
+        "gpu_choose": gpu_choose,
+        "check0": ' checked' if fp16 else '',
+        "check1": ' checked' if save_each_epoch else '',
+        "class_string": class_string
+    }
+    return render_template("basic_settings.html", web_name=get_web_name(), **data)
 
 
 def getHypSettingsHtml(settings_dir):
@@ -452,231 +455,30 @@ def getHypSettingsHtml(settings_dir):
         print_interval = msg["print_interval"]
         eval_interval = msg["eval_interval"]
 
-        strings = (
-            settings_dir,
-            str(warmup_epochs),
-            str(weight_decay),
-            str(momentum),
-            str(warmup_lr),
-            str(basic_lr_per_img),
-            str(min_lr_ratio),
-            str(no_aug_epochs),
-            str(print_interval),
-            str(eval_interval),
-            ' checked' if ema else ''
-        )
+        data = {
+            "settings_dir": settings_dir,
+            "warmup_epochs": str(warmup_epochs),
+            "weight_decay": str(weight_decay),
+            "momentum": str(momentum),
+            "warmup_lr": str(warmup_lr),
+            "basic_lr_per_img": str(basic_lr_per_img),
+            "min_lr_ratio": str(min_lr_ratio),
+            "no_aug_epochs": str(no_aug_epochs),
+            "print_interval": str(print_interval),
+            "eval_interval": str(eval_interval),
+            "ema": ' checked' if ema else ''
+        }
 
-        return """<html>
-    <head>
-        <title>WEB-YOLOX 训练超参数配置</title>
-        <meta charset="utf-8">
-        <link rel="stylesheet" type="text/css" href="file/hyps.css?new=true">
-    </head>
-    <body>
-        <form
-            action="/save_hyp"
-            method="post"
-            enctype="multiple/form-data"
-            class="elegant-aero"
-        >
-        <h3>YOLOX训练超参数配置</h3><br /><br />
-            正在配置: <input type="text" name="name" value="%s" readonly required/><br /><br />
-            <div class="numberline">
-                <div class="number">
-                    学习率预热次数<br />(warmup epochs):
-                    <input type="number" name="warmup_epochs" value="%s" required/>
-                </div>
-                <div class="number">
-                    权重衰减系数<br />(weight decay):
-                    <input type="number" name="weight_decay" value="%s" step="any" required/>
-                </div>
-                <div class="number">
-                    动量<br />(momentum):
-                    <input type="number" name="momentum" value="%s" step="any" required/>
-                </div>
-            </div>
-            <div class="numberline">
-                <div class="number">
-                    预热起始学习率<br />(warmup learning rate):
-                    <input type="number" name="warmup_lr" value="%s" step="any" required/>
-                </div>
-                <div class="number">
-                    每张图片的初始学习率<br />(basic learning rate):
-                    <input type="number" name="basic_lr_per_img" value="%s" step="any" required/>
-                </div>
-                <div class="number">
-                    最终学习率的比值<br />(final lr / basic lr):
-                    <input type="number" name="min_lr_ratio" value="%s" step="any" required/>
-                </div>
-            </div>
-            <div class="numberline">
-                <div class="number">
-                    末尾停用数据增强次数<br />(no aug epochs):
-                    <input type="number" name="no_aug_epochs" value="%s" required/>
-                </div>
-                <div class="number">
-                    输出训练结果间隔<br />(print per iteration)
-                    <input type="number" name="print_interval" value="%s" required/>
-                </div>
-                <div class="number">
-                    验证间隔<br />(validate per epoch)<br />
-                    <input type="number" name="eval_interval" value="%s" required/><br />
-                </div>
-            </div>
-
-            <br />
-            <input type="checkbox" name="ema"%s />使用EMA策略(提升模型鲁棒性和性能)<br />
-
-
-            <br /><br />
-            <input type="reset" class="button" value="重置"> &nbsp;
-            <input type="submit" class="button" value="提交"><br />
-        </form>
-    </body>
-</html>
-""" % strings
+        return render_template("hyp_settings.html", web_name=get_web_name(), **data)
     else:
         return jump2Html('/settings_list', 'Invalid url!', 1)
 
 
-def getSettingsListHtml():
-    from glob import glob
-    list_show = []
-    table_type = ["序号", "训练配置名称", "配置完成情况", "训练情况", "操作"]
-    now_interpreter = open('./run/interpreter.txt').read()
-    string_show = ""
-    for this_type in table_type:
-        string_show += "<th>%s</th>" % this_type
-    string_show = "<tr>%s</tr>" % string_show
-    for path in sorted(glob('./settings/*')):
-        # print(path)
-        if os.path.isdir(path):
-            list_show.append({
-                'name': path.split('/')[-1],
-                'ok': os.path.isfile(os.path.join(path, 'settings.yaml'))
-            })
-
-    for i, item in enumerate(list_show):
-        is_train = is_training(item['name'])
-        train_command = 'start_train' if not is_train else 'stop_train'
-        train_cmd_show = '开始训练' if not is_train else '终止训练'
-        train_show = '<a href="/%s?name=%s">%s</a>&nbsp;&nbsp;' % (train_command, item['name'], train_cmd_show) \
-                     if item['ok'] else ''
-        string_show += """<tr>
-        <td><center>%d</center></td>
-        <td><center>%s</center></td>
-        <td><center>%s</center></td>
-        <td><center>%s</center></td>
-        <td><center>%s</center></td>
-        </tr>""" % (
-            i + 1,
-            '%s&nbsp;&nbsp;<a href="/train_details?name=%s&show_length=30" target="_blank">详情</a>' % (item['name'], item['name']),
-            '<text style="color:green">已完成配置</text>' if item['ok'] else '<text style="color:red">未完成配置</text>',
-            '<text style="color:green">正在训练, <a href="/train_log?name=%s&line_length=40" style="color:green" target="_blank">点此查看日志</a></text>' % item['name'] if is_train else '<text style="color:red">未在训练</text>',
-            '<a href="/edit_setting?name=%s">修改基本配置</a>&nbsp;&nbsp;'
-            '<a href="/edit_hyp?name=%s">修改超参数</a>&nbsp;&nbsp;'
-            '%s'
-            '%s' % (
-                item['name'],
-                item['name'],
-                train_show,
-                ('<a href="/delete_setting?name=%s">删除该配置</a>' % item['name']) if not is_train else ''
-            )
-        )
-
-    string_show = """<html> 
-    <head> 
-        <title>WEB-YOLOX 训练配置列表</title> 
-        <link rel="stylesheet" type="text/css" href="file/table.css?new=true"> 
-    </head> 
-    <body> 
-        <div style="display: flex;"> 
-            <div style="width: 50%%"><a href="/set_interpreter">设置解释器</a>&nbsp;&nbsp;当前解释器: %s</div> 
-            <div style="width: 50%%"> 
-                <div style="float: right;padding-right: 10px;"> 
-                    <a href="/file/yolox_base.zip">下载测试代码</a>&nbsp;&nbsp; 
-                    <a href="/change_user_pwd">修改用户名和密码</a>&nbsp;&nbsp; 
-                    <a href="/logout">注销</a> 
-                </div> 
-            </div> 
-        </div> 
-        <center> 
-            <h2>训练配置列表</h2> 
-            <a href="/create_new_setting">创建新的训练配置</a> 
-            <table>%s</table> 
-        </center> 
-    </body> 
-</html>""" % (now_interpreter, string_show)
-    return string_show
-
-
 def getSetInterpreterHtml():
     now_interpreter = open('./run/interpreter.txt').read()
-    return """<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>WEB-YOLOX 选择解释器</title>
-    <link rel="stylesheet" type="text/css" href="file/login.css"/>
-</head>
-<body>
-    <div id="create">
-        <center><h1>选择解释器</h1></center>
-        <form method="post" action="">
-            <p><center>
-            <input type="text" placeholder="例：/root/anaconda3/envs/yolo/bin/python3" name="interpreter" value="%s" required />
-            </center></p>
-            <center><button class="but" type="submit">确认更改</button></center><br>
-            <center><button class="but" type="reset">重置</button></center>
-        </form>
-    </div>
-</body>
-</html>""" % now_interpreter
+    return render_template("set_interpreter.html", web_name=get_web_name(), now_interpreter=now_interpreter)
 
 
 def confirmDeleteSettingHtml(name: str):
-    string_show = """<!DOCTYPE html> 
-<html lang="en"> 
-<html> 
-    <head> 
-        <meta charset="UTF-8"> 
-        <title>WEB-YOLOX 确认删除配置</title> 
-        <link rel="stylesheet" type="text/css" href="file/login.css?new=true"> 
-    </head> 
-    <body> 
-        <center> 
-            <div id="create"> 
-                <h1>您正要删除配置: %s</h1> 
-                <form id="confirm" name="confirm" action="/confirm_delete" method="post"> 
-                     <div id="msg" style="color:red"></div> 
-                     <p><input type="text" name="inputname" placeholder="请输入该配置名称以确认删除" required/></p> 
-                     <input type="hidden" name="name" value="%s" required/> 
-                     <button class="but" type="button" onclick="confirm_and_submit();">确认删除</button> 
-                </form> 
-            </div> 
-        </center> 
-        <script type="text/javascript"> 
-            confirm_and_submit = function () { 
-                var confirm = document.getElementById("confirm"); 
-                var real_name = confirm.name.value; 
-                var input_name = confirm.inputname.value; 
-                var msg = document.getElementById("msg"); 
-                if (real_name === input_name) { 
-                    confirm.submit(); 
-                } 
-                else { 
-                    msg.innerHTML = "<p>输入错误！</p>"; 
-                    console.log("wrong input: " + msg.value); 
-                } 
-            } 
-        </script> 
-        <!-script src="/file/confirm_delete.js?new=true" /> 
-    </body> 
-</html>""" % (name, name)
-    return string_show
-
-
-
-
-
+    return render_template("confirm_delete.html", web_name=get_web_name(), name=name)
 
