@@ -67,13 +67,12 @@ def download(url, file_name, num_thread=10):
 
 if __name__ == '__main__':
     pths = {
-        # "yolox_nano.pth": "https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_nano.pth",
-        # "yolox_tiny.pth": "https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.pth",
-        # "yolox_s.pth": "https://hub.fastgit.org/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.pth",
-        "nomachine.exe": "https://www.bitlsh.top/download/nomachine.exe"
-        # "yolox_m.pth": "https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_m.pth",
-        # "yolox_l.pth": "https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_l.pth",
-        # "yolox_x.pth": "https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_x.pth",
+        "yolox_nano.pth": "https://github.com/LSH9832/webyolox/releases/download/0.2.0/nano_backbone.pth",
+        "yolox_tiny.pth": "https://github.com/LSH9832/webyolox/releases/download/0.2.0/tiny_backbone.pth",
+        "yolox_s.pth": "https://github.com/LSH9832/webyolox/releases/download/0.2.0/s_backbone.pth",
+        "yolox_m.pth": "https://github.com/LSH9832/webyolox/releases/download/0.2.0/m_backbone.pth",
+        "yolox_l.pth": "https://github.com/LSH9832/webyolox/releases/download/0.2.0/l_backbone.pth",
+        "yolox_x.pth": "https://github.com/LSH9832/webyolox/releases/download/0.2.0/x_backbone.pth",
     }
 
     for pth in pths:
