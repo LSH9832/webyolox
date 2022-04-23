@@ -66,6 +66,9 @@ class Exp(BaseExp):
         self.eval_interval = 10
         self.exp_name = os.path.split(os.path.realpath(__file__))[1].split(".")[0]
 
+        self.model = None
+        self.backbone_type = "origin"
+
         # -----------------  testing config ------------------ #
 
         self.test_conf = 0.01
@@ -74,30 +77,30 @@ class Exp(BaseExp):
         self.depthwise = False
 
     def get_model(self) -> YOLOX:
-        from yolox.models import YOLOX, YOLOPAFPN, YOLOXHead
 
-        def init_yolo(M):
-            for m in M.modules():
-                if isinstance(m, nn.BatchNorm2d):
-                    m.eps = 1e-3
-                    m.momentum = 0.03
+        if self.model is None:
+            def init_yolo(M):
+                for m in M.modules():
+                    if isinstance(m, nn.BatchNorm2d):
+                        m.eps = 1e-3
+                        m.momentum = 0.03
 
-        if getattr(self, "model", None) is None:
+            from ..models import get_model
+
             in_channels = [256, 512, 1024]
-            backbone = YOLOPAFPN(self.depth, self.width, in_channels=in_channels, act=self.act, depthwise=self.depthwise)
 
-            head = YOLOXHead(
-                self.num_classes,
-                self.width,
+            self.model = get_model(
+                depth=self.depth,
+                width=self.width,
+                num_classes=self.num_classes,
                 in_channels=in_channels,
                 act=self.act,
-                depthwise=self.depthwise
+                backbone_type=self.backbone_type
             )
 
-            self.model = YOLOX(backbone, head)
+            self.model.apply(init_yolo)
+            self.model.head.initialize_biases(1e-2)
 
-        self.model.apply(init_yolo)
-        self.model.head.initialize_biases(1e-2)
         return self.model
 
     def get_data_loader(self, batch_size, is_distributed, no_aug=False, cache_img=False):

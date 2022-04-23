@@ -55,6 +55,14 @@ class Exp(MyExp):
         self.max_epoch = max_epoch
         self.num_classes = class_num
 
+    @staticmethod
+    def get_all_backbone_type():
+        from yolox.models import BACKBONE
+        return [name for name in BACKBONE]
+
+    def set_backbone_type(self, type_name):
+        self.backbone_type = type_name
+
     def load_yaml(self, yaml_name):
         yaml_data = yaml.load(open(yaml_name, 'r'), yaml.Loader)
 

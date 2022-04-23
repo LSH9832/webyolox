@@ -1,3 +1,7 @@
+"""
+author: LSH9832
+reference: https://github.com/Megvii-BaseDetection/YOLOX
+"""
 import os
 import cv2
 import torch

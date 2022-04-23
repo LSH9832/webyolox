@@ -1,5 +1,7 @@
-# -*- coding:utf-8 -*-
-# Copyright (c) Megvii, Inc. and its affiliates.
+"""
+author: LSH9832
+reference: https://github.com/Megvii-BaseDetection/YOLOX
+"""
 
 import datetime
 import os
