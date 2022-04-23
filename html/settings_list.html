@@ -20,17 +20,25 @@
             <div id="table"></div>
         </center>
         <script type="text/javascript">
-var httpRequest0 = new XMLHttpRequest();
-httpRequest0.open('GET', '/settings_list?table=1', true);
-httpRequest0.send();
+setInterval(
+    function () {
+        var httpRequest0 = new XMLHttpRequest();
+        httpRequest0.open('GET', '/settings_list?table=1', true);
+        httpRequest0.send();
+        
+        httpRequest0.onreadystatechange = function () {
+            if (httpRequest0.readyState == 4 && httpRequest0.status == 200) {
+                var text = httpRequest0.responseText;
+                var table = document.getElementById("table");
+                if (table.innerHTML != text) {
+                    table.innerHTML = text;
+                }
+            }
+        };
 
-httpRequest0.onreadystatechange = function () {
-    if (httpRequest0.readyState == 4 && httpRequest0.status == 200) {
-        var text = httpRequest0.responseText;
-        var table = document.getElementById("table");
-        table.innerHTML = text;
-    }
-};
+    }, 
+    1000
+)
         </script>
     </body>
 </html>
