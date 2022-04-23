@@ -95,7 +95,8 @@ class Exp(BaseExp):
                 num_classes=self.num_classes,
                 in_channels=in_channels,
                 act=self.act,
-                backbone_type=self.backbone_type
+                backbone_type=self.backbone_type,
+                depthwise=self.depthwise
             )
 
             self.model.apply(init_yolo)
