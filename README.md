@@ -8,7 +8,7 @@
 **不想看介绍想直接用**的同学（我就是这种人，建议**至少还是看一下注意**）copy下面代码到服务器上运行就行(前提是安装完了**cuda,cudnn,torch,torchvision**哈)
 ```shell
 sudo apt install screen
-git clone https://github.com/LSH9832/webyolox.git
+git clone https://github.com/LSH9832/webyolox
 cd webyolox
 pip3 install -r requirements.txt
 python3 main.py -p 8080 --debug
