@@ -190,7 +190,7 @@ def get_all_pth_files_list(setting_dir):
         string_head += "<th>%s</th>" % this_type
     for i, pth_file_name in enumerate(sorted(glob(pth_file_dir + '*.pth'))):
         file_size = get_file_size(pth_file_name)
-        pth_file_name = pth_file_name.split('/')[-1]
+        pth_file_name = pth_file_name.replace("\\", "/").split('/')[-1]
         string_show += """        <tr>
             <td><center>%d</center></td>
             <td><center>%s</center></td>
