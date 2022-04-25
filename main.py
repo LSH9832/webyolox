@@ -345,7 +345,7 @@ def train_log():
     if os.path.exists(log_name):
         if "lines" in msg:
             lines = int(msg['lines'])
-            all_lines = open(log_name).readlines()[-lines:]
+            all_lines = open(log_name, encoding="utf8").readlines()[-lines:]
             send_string = ""
             for line in all_lines:
                 send_string += line  # .replace('\n', '<br \\>')
