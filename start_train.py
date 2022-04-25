@@ -4,6 +4,10 @@ reference: https://github.com/Megvii-BaseDetection/YOLOX
 """
 import os
 import sys
+import platform
+
+if platform.system() == "Windows":
+    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 setting_file = os.path.abspath('settings.yaml')
 hyp_file = os.path.abspath('hyp.yaml')
