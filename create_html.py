@@ -60,7 +60,7 @@ def is_training(setting_name):
                         data = []
                         for item in task.split(" "):
                             data.append(item) if len(item) else None
-                        if data[1] == this_pid:
+                        if int(data[1]) == int(this_pid):
                             training = True
                             break
                     if training:
