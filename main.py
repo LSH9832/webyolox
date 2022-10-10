@@ -214,11 +214,17 @@ def save_basic():
         "val_annotation_file": '%sannotations/%s' % (msg['data_dir'], msg['val_anno']),
         "val_dataset_path": '%s%s' % (msg['data_dir'], msg['val_dir']),
     }
-    class_string = msg["classes"]
-    if class_string.endswith("\n"):
-        class_string = class_string[:-1]
-    if len(class_string) and os.path.isdir(msg["data_dir"]):
-        open(os.path.join(msg["data_dir"], "classes.txt"), "w").write(class_string)
+    class_string = msg["classes"].replace("\r", "").replace("\t", "")
+    save_string = ""
+    for class_name in class_string.split("\n"):
+        while class_name.endswith(" "):
+            class_name = class_name[:-1]
+        if len(class_name):
+            save_string += f"{class_name}\n"
+
+    if len(save_string) and os.path.isdir(msg["data_dir"]):
+        save_string = save_string[:-1]
+        open(os.path.join(msg["data_dir"], "classes.txt"), "w").write(save_string)
     try:
         gpu_choose = msg["gpu_choose"]
         gpu_choose.replace("；", ";").replace(" ", "").replace("\r", "")
